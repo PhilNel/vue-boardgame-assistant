@@ -1,0 +1,222 @@
+<template>
+  <div class="flex flex-col h-screen bg-chat-bg">
+    <!-- Header -->
+    <header class="bg-chat-surface border-b border-chat-border px-4 py-3">
+      <div class="max-w-4xl mx-auto flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <h1 class="text-xl font-semibold text-chat-text">
+            🧙‍♂️ Boardgame Wiz
+          </h1>
+          <div class="text-chat-text-secondary text-sm">
+            {{ currentGameInfo?.name || 'No game selected' }}
+          </div>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+          <!-- Clear Chat Button -->
+          <button
+            v-if="messages.length > 1"
+            @click="handleClearChat"
+            class="btn-secondary text-sm px-3 py-1"
+            title="Clear chat history"
+          >
+            <ClearIcon class="w-4 h-4 mr-1" />
+            Clear Chat
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Game Selector -->
+    <div class="bg-chat-surface border-b border-chat-border px-4 py-3">
+      <div class="max-w-4xl mx-auto">
+        <GameSelector
+          :selected-game="selectedGame"
+          :available-games="availableGames"
+          :current-game-info="currentGameInfo"
+          :has-messages="messages.length > 1"
+          @change-game="handleGameChange"
+        />
+      </div>
+    </div>
+
+    <!-- Error Banner -->
+    <div
+      v-if="error"
+      class="bg-red-900 bg-opacity-50 border-b border-red-800 px-4 py-2"
+    >
+      <div class="max-w-4xl mx-auto flex items-center justify-between">
+        <div class="flex items-center space-x-2 text-red-200">
+          <AlertIcon class="w-4 h-4" />
+          <span class="text-sm">{{ error }}</span>
+        </div>
+        <button
+          @click="clearError"
+          class="text-red-300 hover:text-red-100"
+        >
+          <CloseIcon class="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <MessageList
+      ref="messageListRef"
+      :messages="messages"
+      @copy-message="handleCopyMessage"
+      @retry-message="handleRetryMessage"
+    />
+
+    <!-- Input -->
+    <MessageInput
+      ref="messageInputRef"
+      :can-send="canSendMessage"
+      :is-loading="isLoading"
+      @send-message="handleSendMessage"
+    />
+
+    <!-- Toast Notifications -->
+    <div
+      v-if="showToast"
+      class="fixed bottom-4 right-4 bg-chat-surface border border-chat-border rounded-lg px-4 py-2 shadow-lg z-50"
+    >
+      <div class="flex items-center space-x-2 text-chat-text text-sm">
+        <CheckIcon class="w-4 h-4 text-green-400" />
+        <span>{{ toastMessage }}</span>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useChat } from '@/composables/useChat'
+import GameSelector from './GameSelector.vue'
+import MessageList from './MessageList.vue'
+import MessageInput from './MessageInput.vue'
+
+// Simple SVG icons
+const ClearIcon = {
+  template: `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14zM10 11v6M14 11v6"/>
+    </svg>
+  `
+}
+
+const AlertIcon = {
+  template: `
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M13 14H11V9H13M13 18H11V16H13M1 21H23L12 2L1 21Z"/>
+    </svg>
+  `
+}
+
+const CloseIcon = {
+  template: `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 6L6 18M6 6l12 12"/>
+    </svg>
+  `
+}
+
+const CheckIcon = {
+  template: `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M20 6L9 17l-5-5"/>
+    </svg>
+  `
+}
+
+// Chat composable
+const {
+  messages,
+  selectedGame,
+  currentGameInfo,
+  isLoading,
+  canSendMessage,
+  error,
+  sendMessage,
+  changeGame,
+  clearChat,
+  retryLastMessage,
+  copyMessage,
+  availableGames,
+} = useChat()
+
+// Component refs
+const messageListRef = ref()
+const messageInputRef = ref()
+
+// Toast notification state
+const showToast = ref(false)
+const toastMessage = ref('')
+
+// Handlers
+const handleSendMessage = async (message: string) => {
+  await sendMessage(message)
+}
+
+const handleGameChange = (gameId: string) => {
+  changeGame(gameId)
+}
+
+const handleClearChat = () => {
+  if (confirm('Are you sure you want to clear the chat history?')) {
+    clearChat()
+    messageInputRef.value?.focus()
+  }
+}
+
+const handleCopyMessage = async (messageId: string) => {
+  const success = await copyMessage(messageId)
+  if (success) {
+    showToast.value = true
+    toastMessage.value = 'Message copied to clipboard'
+    setTimeout(() => {
+      showToast.value = false
+    }, 2000)
+  }
+}
+
+const handleRetryMessage = () => {
+  retryLastMessage()
+}
+
+const clearError = () => {
+  // Error will be cleared automatically by the composable
+}
+
+// Focus input on mount
+onMounted(() => {
+  messageInputRef.value?.focus()
+})
+
+// Keyboard shortcuts
+const handleKeyboardShortcuts = (event: KeyboardEvent) => {
+  // Ctrl/Cmd + K to focus input
+  if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+    event.preventDefault()
+    messageInputRef.value?.focus()
+  }
+  
+  // Ctrl/Cmd + Shift + C to clear chat
+  if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'C') {
+    event.preventDefault()
+    handleClearChat()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleKeyboardShortcuts)
+})
+
+// Cleanup
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeyboardShortcuts)
+})
+</script>
+
+<style scoped>
+/* Additional component-specific styles if needed */
+</style> 
