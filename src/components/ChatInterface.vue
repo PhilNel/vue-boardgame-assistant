@@ -2,26 +2,40 @@
   <div class="flex flex-col h-screen bg-chat-bg">
     <!-- Header -->
     <header class="bg-chat-surface border-b border-chat-border px-4 py-3">
-      <div class="max-w-4xl mx-auto flex items-center justify-between">
-        <div class="flex items-center space-x-4">
-          <h1 class="text-xl font-semibold text-chat-text">
-            🧙‍♂️ Boardgame Wiz
-          </h1>
-          <div class="text-chat-text-secondary text-sm">
+      <div class="w-full sm:max-w-4xl sm:mx-auto flex items-center justify-between">
+        <div class="flex items-center space-x-3 min-w-0 flex-1">
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
+              <WizardAvatar class="w-8 h-8" />
+            </div>
+            <h1 class="text-lg sm:text-xl font-semibold text-chat-text flex-shrink-0">
+              Boardgame Wiz
+            </h1>
+          </div>
+          <div class="text-chat-text-secondary text-xs sm:text-sm truncate">
             {{ currentGameInfo?.name || 'No game selected' }}
           </div>
         </div>
         
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2 flex-shrink-0">
           <!-- Clear Chat Button -->
           <button
             v-if="messages.length > 1"
             @click="handleClearChat"
-            class="btn-secondary text-sm px-3 py-1"
+            class="btn-secondary text-xs sm:text-sm px-2 sm:px-3 py-1 hidden sm:flex items-center"
             title="Clear chat history"
           >
             <ClearIcon class="w-4 h-4 mr-1" />
             Clear Chat
+          </button>
+          <!-- Mobile Clear Button -->
+          <button
+            v-if="messages.length > 1"
+            @click="handleClearChat"
+            class="btn-secondary p-2 sm:hidden"
+            title="Clear chat history"
+          >
+            <ClearIcon class="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -29,7 +43,7 @@
 
     <!-- Game Selector -->
     <div class="bg-chat-surface border-b border-chat-border px-4 py-3">
-      <div class="max-w-4xl mx-auto">
+      <div class="w-full sm:max-w-4xl sm:mx-auto">
         <GameSelector
           :selected-game="selectedGame"
           :available-games="availableGames"
@@ -89,43 +103,62 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, h } from 'vue'
 import { useChat } from '@/composables/useChat'
 import GameSelector from './GameSelector.vue'
 import MessageList from './MessageList.vue'
 import MessageInput from './MessageInput.vue'
+import WizardAvatar from './WizardAvatar.vue'
 
 // Simple SVG icons
 const ClearIcon = {
-  template: `
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14zM10 11v6M14 11v6"/>
-    </svg>
-  `
+  render() {
+    return h('svg', {
+      viewBox: '0 0 24 24',
+      fill: 'none',
+      stroke: 'currentColor',
+      'stroke-width': '2'
+    }, [
+      h('path', { d: 'M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14zM10 11v6M14 11v6' })
+    ])
+  }
 }
 
 const AlertIcon = {
-  template: `
-    <svg viewBox="0 0 24 24" fill="currentColor">
-      <path d="M13 14H11V9H13M13 18H11V16H13M1 21H23L12 2L1 21Z"/>
-    </svg>
-  `
+  render() {
+    return h('svg', {
+      viewBox: '0 0 24 24',
+      fill: 'currentColor'
+    }, [
+      h('path', { d: 'M13 14H11V9H13M13 18H11V16H13M1 21H23L12 2L1 21Z' })
+    ])
+  }
 }
 
 const CloseIcon = {
-  template: `
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M18 6L6 18M6 6l12 12"/>
-    </svg>
-  `
+  render() {
+    return h('svg', {
+      viewBox: '0 0 24 24',
+      fill: 'none',
+      stroke: 'currentColor',
+      'stroke-width': '2'
+    }, [
+      h('path', { d: 'M18 6L6 18M6 6l12 12' })
+    ])
+  }
 }
 
 const CheckIcon = {
-  template: `
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M20 6L9 17l-5-5"/>
-    </svg>
-  `
+  render() {
+    return h('svg', {
+      viewBox: '0 0 24 24',
+      fill: 'none',
+      stroke: 'currentColor',
+      'stroke-width': '2'
+    }, [
+      h('path', { d: 'M20 6L9 17l-5-5' })
+    ])
+  }
 }
 
 // Chat composable

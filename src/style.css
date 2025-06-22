@@ -27,7 +27,7 @@
   }
   
   .message-assistant {
-    @apply bg-chat-assistant-bg text-chat-text;
+    @apply text-chat-text;
   }
   
   .message-system {

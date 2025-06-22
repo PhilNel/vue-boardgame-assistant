@@ -1,15 +1,17 @@
 <template>
-  <div class="border-t border-chat-border bg-chat-surface p-4">
-    <div class="max-w-4xl mx-auto">
-      <div class="flex items-start space-x-3">
+  <div class="border-t border-chat-border bg-chat-surface p-3 sm:p-4">
+    <div class="w-full sm:max-w-4xl sm:mx-auto">
+      <div class="flex items-start space-x-2 sm:space-x-3">
         <div class="flex-1 relative">
           <textarea
+            id="message-input"
             ref="textareaRef"
             v-model="message"
             :disabled="!canSend"
             :placeholder="placeholder"
-            class="chat-input w-full rounded-lg border px-4 py-3 resize-none overflow-hidden min-h-[52px]"
+            class="chat-input w-full rounded-lg border px-3 sm:px-4 py-3 resize-none overflow-hidden min-h-[52px] text-sm sm:text-base"
             rows="1"
+            aria-label="Type your message"
             @keydown="handleKeydown"
             @input="adjustTextareaHeight"
           />
@@ -26,7 +28,7 @@
         <button
           @click="handleSend"
           :disabled="!canSend || !message.trim()"
-          class="btn-primary flex items-center justify-center space-x-2 px-4 min-h-[52px] flex-shrink-0 self-start"
+          class="btn-primary flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 min-h-[52px] flex-shrink-0 self-start"
           :class="{ 'opacity-50 cursor-not-allowed': !canSend || !message.trim() }"
         >
           
@@ -77,7 +79,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  placeholder: 'Ask a question about the game rules...'
+  placeholder: 'Ask about game rules...'
 })
 
 const emit = defineEmits<Emits>()

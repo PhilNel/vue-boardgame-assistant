@@ -2,9 +2,9 @@
   <div class="flex-1 overflow-hidden">
     <div
       ref="messagesContainer"
-      class="chat-messages chat-scroll h-full overflow-y-auto px-2 py-6"
+      class="chat-messages chat-scroll h-full overflow-y-auto px-2 sm:px-4 py-4 sm:py-6"
     >
-      <div class="max-w-4xl mx-auto space-y-4">
+      <div class="w-full sm:max-w-4xl sm:mx-auto space-y-3 sm:space-y-4">
         <TransitionGroup name="message" tag="div">
           <div
             v-for="message in messages"
@@ -16,17 +16,16 @@
               v-if="message.role === 'user'"
               class="flex justify-end my-4"
             >
-              <div class="message-bubble message-user max-w-2xl">
-                <div class="flex items-start space-x-3">
-                  <div class="flex-1">
-                    <div class="whitespace-pre-wrap">{{ message.content }}</div>
-                    <div class="text-xs opacity-70 mt-2">
-                      {{ formatTime(message.timestamp) }}
-                    </div>
+              <div class="message-bubble message-user max-w-3xl ml-12">
+                <div class="whitespace-pre-wrap">{{ message.content }}</div>
+                <div class="flex items-center justify-between mt-3">
+                  <div class="text-xs opacity-70">
+                    {{ formatTime(message.timestamp) }}
                   </div>
+                  
                   <button
                     @click="copyMessage(message.id)"
-                    class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white hover:bg-opacity-20 rounded"
+                    class="opacity-60 hover:opacity-100 transition-opacity p-1 hover:bg-white hover:bg-opacity-20 rounded"
                     title="Copy message"
                   >
                     <CopyIcon class="w-4 h-4" />
@@ -38,60 +37,52 @@
             <!-- Assistant Message -->
             <div
               v-else-if="message.role === 'assistant'"
-              class="flex justify-start group"
+              class="group w-full"
             >
-              <div class="message-bubble message-assistant max-w-5xl">
-                <div class="flex items-start space-x-3">
-                  <!-- Wizard Avatar -->
-                  <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center overflow-hidden">
-                    <WizardAvatar class="w-8 h-8" />
+              <div class="message-assistant w-full px-4 sm:px-2">
+                <!-- Loading State -->
+                <div v-if="message.isLoading">
+                  <LoadingSpinner/>
+                </div>
+                
+                <!-- Message Content -->
+                <div v-else>
+                  <div
+                    v-if="message.error"
+                    class="text-red-400 bg-red-900 bg-opacity-20 border border-red-800 rounded p-3 mb-3"
+                  >
+                    <div class="flex items-center space-x-2 mb-1">
+                      <AlertIcon class="w-4 h-4" />
+                      <span class="font-medium">Error</span>
+                    </div>
+                    <div class="text-sm">{{ message.content }}</div>
+                    <button
+                      @click="retryMessage"
+                      class="text-xs text-red-300 hover:text-red-100 underline mt-2"
+                    >
+                      Try again
+                    </button>
                   </div>
                   
-                  <div class="flex-1 min-w-0">
-                    <!-- Loading State -->
-                    <div v-if="message.isLoading">
-                      <LoadingSpinner message="Thinking..." />
+                  <div
+                    v-else
+                    class="prose prose-invert max-w-none mb-3"
+                    v-html="formatMessageContent(message.content)"
+                  ></div>
+                  
+                  <!-- Bottom row with timestamp and copy button -->
+                  <div class="flex items-center space-x-2 mt-3">
+                    <div class="text-xs text-chat-text-secondary">
+                      {{ formatTime(message.timestamp) }}
                     </div>
                     
-                    <!-- Message Content -->
-                    <div v-else>
-                      <div
-                        v-if="message.error"
-                        class="text-red-400 bg-red-900 bg-opacity-20 border border-red-800 rounded p-3 mb-2"
-                      >
-                        <div class="flex items-center space-x-2 mb-1">
-                          <AlertIcon class="w-4 h-4" />
-                          <span class="font-medium">Error</span>
-                        </div>
-                        <div class="text-sm">{{ message.content }}</div>
-                        <button
-                          @click="retryMessage"
-                          class="text-xs text-red-300 hover:text-red-100 underline mt-2"
-                        >
-                          Try again
-                        </button>
-                      </div>
-                      
-                      <div
-                        v-else
-                        class="prose prose-invert max-w-none"
-                        v-html="formatMessageContent(message.content)"
-                      ></div>
-                      
-                      <div class="flex items-center justify-between mt-3">
-                        <div class="text-xs text-chat-text-secondary">
-                          {{ formatTime(message.timestamp) }}
-                        </div>
-                        
-                        <button
-                          @click="copyMessage(message.id)"
-                          class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-600 rounded"
-                          title="Copy message"
-                        >
-                          <CopyIcon class="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
+                    <button
+                      @click="copyMessage(message.id)"
+                      class="opacity-60 hover:opacity-100 transition-opacity p-1 hover:bg-gray-600 rounded"
+                      title="Copy message"
+                    >
+                      <CopyIcon class="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -121,7 +112,7 @@
             <WizardAvatar class="w-16 h-16" />
           </div>
           <h3 class="text-lg font-medium text-chat-text mb-2">
-            🧙‍♂️ Welcome to Boardgame Wiz
+            Welcome to Boardgame Wiz
           </h3>
           <p class="text-chat-text-secondary">
             Ready to conjure up some game rule magic? Ask me anything!
@@ -133,26 +124,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue'
+import { ref, nextTick, watch, h } from 'vue'
 import type { ChatMessage } from '@/types/chat'
 import LoadingSpinner from './LoadingSpinner.vue'
 import WizardAvatar from './WizardAvatar.vue'
 
 const CopyIcon = {
-  template: `
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-    </svg>
-  `
+  render() {
+    return h('svg', {
+      viewBox: '0 0 24 24',
+      fill: 'none',
+      stroke: 'currentColor',
+      'stroke-width': '2'
+    }, [
+      h('rect', { x: '9', y: '9', width: '13', height: '13', rx: '2', ry: '2' }),
+      h('path', { d: 'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1' })
+    ])
+  }
 }
 
 const AlertIcon = {
-  template: `
-    <svg viewBox="0 0 24 24" fill="currentColor">
-      <path d="M13 14H11V9H13M13 18H11V16H13M1 21H23L12 2L1 21Z"/>
-    </svg>
-  `
+  render() {
+    return h('svg', {
+      viewBox: '0 0 24 24',
+      fill: 'currentColor'
+    }, [
+      h('path', { d: 'M13 14H11V9H13M13 18H11V16H13M1 21H23L12 2L1 21Z' })
+    ])
+  }
 }
 
 interface Props {
