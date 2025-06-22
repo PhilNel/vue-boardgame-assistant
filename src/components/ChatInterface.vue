@@ -12,9 +12,6 @@
               Boardgame Wiz
             </h1>
           </div>
-          <div class="text-chat-text-secondary text-xs sm:text-sm truncate">
-            {{ currentGameInfo?.name || 'No game selected' }}
-          </div>
         </div>
         
         <div class="flex items-center space-x-2 flex-shrink-0">
