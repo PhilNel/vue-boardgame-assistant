@@ -28,7 +28,7 @@
         <button
           @click="handleSend"
           :disabled="!canSend || !message.trim()"
-          class="btn-primary flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 min-h-[52px] flex-shrink-0 self-start"
+          class="btn-primary flex items-center justify-center rounded-full w-[52px] h-[52px] flex-shrink-0 self-start"
           :class="{ 'opacity-50 cursor-not-allowed': !canSend || !message.trim() }"
         >
           

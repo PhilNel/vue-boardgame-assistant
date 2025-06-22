@@ -12,7 +12,7 @@
         <div class="w-2 h-2 bg-chat-text-secondary rounded-full loading-dot"></div>
         <div class="w-2 h-2 bg-chat-text-secondary rounded-full loading-dot"></div>
       </div>
-      <span class="text-chat-text-secondary text-sm ml-2">{{ message || 'Thinking...' }}</span>
+      <span class="text-chat-text-secondary text-sm ml-2">{{ message }}</span>
     </div>
   </div>
 </template>
