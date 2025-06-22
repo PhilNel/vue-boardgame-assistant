@@ -107,9 +107,16 @@ export function useChat() {
         chatState.currentSession.messages.push(assistantMessage)
       } else {
         // Add error message
+        let errorContent = response.error?.message || 'Sorry, I encountered an error. Please try again.'
+        
+        // Provide more helpful message for rate limiting
+        if (response.error?.code === 'RATE_LIMITED') {
+          errorContent = '⏳ The AI service is temporarily overloaded. Please wait 30-60 seconds before trying again. You can also try asking a more specific question to reduce processing time.'
+        }
+        
         const errorMessage: ChatMessage = {
           id: uuidv4(),
-          content: response.error?.message || 'Sorry, I encountered an error. Please try again.',
+          content: errorContent,
           role: 'assistant',
           timestamp: new Date(),
           error: response.error?.code,
@@ -166,19 +173,109 @@ export function useChat() {
   }
 
   // Retry last message (in case of error)
-  const retryLastMessage = () => {
+  const retryLastMessage = async () => {
     if (!chatState.currentSession) return
     
     const messages = chatState.currentSession.messages
     const lastUserMessage = [...messages].reverse().find(m => m.role === 'user')
     
-    if (lastUserMessage) {
-      // Remove any assistant messages after the last user message
-      const lastUserIndex = messages.findIndex(m => m.id === lastUserMessage.id)
-      chatState.currentSession.messages = messages.slice(0, lastUserIndex + 1)
+    if (!lastUserMessage) return
+
+    // Remove any assistant messages after the last user message
+    const lastUserIndex = messages.findIndex(m => m.id === lastUserMessage.id)
+    chatState.currentSession.messages = messages.slice(0, lastUserIndex + 1)
+    
+    // Create loading message for assistant response
+    const loadingMessage: ChatMessage = {
+      id: uuidv4(),
+      content: '',
+      role: 'assistant',
+      timestamp: new Date(),
+      isLoading: true,
+    }
+
+    // Add loading message to session
+    chatState.currentSession.messages.push(loadingMessage)
+    
+    // Update loading state
+    loadingState.isSending = true
+    loadingState.hasError = false
+    chatState.error = null
+
+    try {
+      // Scroll to bottom after adding loading message
+      await nextTick()
+      scrollToBottom()
+
+      // Call API with the existing user message content
+      const response = await ApiService.sendMessage({
+        message: lastUserMessage.content,
+        sessionId: chatState.currentSession.id,
+        game: chatState.selectedGame,
+      })
+
+      // Remove loading message
+      const messageIndex = chatState.currentSession.messages.findIndex(m => m.id === loadingMessage.id)
+      if (messageIndex !== -1) {
+        chatState.currentSession.messages.splice(messageIndex, 1)
+      }
+
+      if (response.success && response.data) {
+        // Add successful response
+        const assistantMessage: ChatMessage = {
+          id: uuidv4(),
+          content: response.data.message,
+          role: 'assistant',
+          timestamp: new Date(response.data.timestamp),
+        }
+        chatState.currentSession.messages.push(assistantMessage)
+      } else {
+        // Add error message
+        let errorContent = response.error?.message || 'Sorry, I encountered an error. Please try again.'
+        
+        // Provide more helpful message for rate limiting
+        if (response.error?.code === 'RATE_LIMITED') {
+          errorContent = '⏳ The AI service is temporarily overloaded. Please wait 30-60 seconds before trying again. You can also try asking a more specific question to reduce processing time.'
+        }
+        
+        const errorMessage: ChatMessage = {
+          id: uuidv4(),
+          content: errorContent,
+          role: 'assistant',
+          timestamp: new Date(),
+          error: response.error?.code,
+        }
+        chatState.currentSession.messages.push(errorMessage)
+        loadingState.hasError = true
+        chatState.error = response.error?.message || 'An error occurred'
+      }
+
+    } catch (error) {
+      // Remove loading message on error
+      const messageIndex = chatState.currentSession.messages.findIndex(m => m.id === loadingMessage.id)
+      if (messageIndex !== -1) {
+        chatState.currentSession.messages.splice(messageIndex, 1)
+      }
+
+      // Add error message
+      const errorMessage: ChatMessage = {
+        id: uuidv4(),
+        content: 'Sorry, I\'m having trouble connecting. Please check your connection and try again.',
+        role: 'assistant',
+        timestamp: new Date(),
+        error: 'CONNECTION_ERROR',
+      }
+      chatState.currentSession.messages.push(errorMessage)
       
-      // Resend the message
-      sendMessage(lastUserMessage.content)
+      loadingState.hasError = true
+      chatState.error = 'Connection error'
+      console.error('Chat error:', error)
+    } finally {
+      loadingState.isSending = false
+      
+      // Scroll to bottom after response
+      await nextTick()
+      scrollToBottom()
     }
   }
 

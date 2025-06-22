@@ -51,25 +51,6 @@
       </div>
     </div>
 
-    <!-- Error Banner -->
-    <div
-      v-if="error"
-      class="bg-red-900 bg-opacity-50 border-b border-red-800 px-4 py-2"
-    >
-      <div class="max-w-4xl mx-auto flex items-center justify-between">
-        <div class="flex items-center space-x-2 text-red-200">
-          <AlertIcon class="w-4 h-4" />
-          <span class="text-sm">{{ error }}</span>
-        </div>
-        <button
-          @click="clearError"
-          class="text-red-300 hover:text-red-100"
-        >
-          <CloseIcon class="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-
     <!-- Messages -->
     <MessageList
       ref="messageListRef"
@@ -121,30 +102,6 @@ const ClearIcon = {
   }
 }
 
-const AlertIcon = {
-  render() {
-    return h('svg', {
-      viewBox: '0 0 24 24',
-      fill: 'currentColor'
-    }, [
-      h('path', { d: 'M13 14H11V9H13M13 18H11V16H13M1 21H23L12 2L1 21Z' })
-    ])
-  }
-}
-
-const CloseIcon = {
-  render() {
-    return h('svg', {
-      viewBox: '0 0 24 24',
-      fill: 'none',
-      stroke: 'currentColor',
-      'stroke-width': '2'
-    }, [
-      h('path', { d: 'M18 6L6 18M6 6l12 12' })
-    ])
-  }
-}
-
 const CheckIcon = {
   render() {
     return h('svg', {
@@ -165,7 +122,6 @@ const {
   currentGameInfo,
   isLoading,
   canSendMessage,
-  error,
   sendMessage,
   changeGame,
   clearChat,
@@ -209,12 +165,8 @@ const handleCopyMessage = async (messageId: string) => {
   }
 }
 
-const handleRetryMessage = () => {
-  retryLastMessage()
-}
-
-const clearError = () => {
-  // Error will be cleared automatically by the composable
+const handleRetryMessage = async () => {
+  await retryLastMessage()
 }
 
 // Focus input on mount
@@ -246,7 +198,3 @@ onUnmounted(() => {
   document.removeEventListener('keydown', handleKeyboardShortcuts)
 })
 </script>
-
-<style scoped>
-/* Additional component-specific styles if needed */
-</style> 
