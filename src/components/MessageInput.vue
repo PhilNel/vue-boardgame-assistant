@@ -32,13 +32,14 @@
           :class="{ 'opacity-50 cursor-not-allowed': !canSend || !message.trim() }"
         >
           
-          <!-- Send icon (pointing up/forward) -->
+          <!-- Send icon (paper airplane pointing right) -->
           <svg
             v-if="!isLoading"
             class="w-4 h-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            style="transform: rotate(90deg)"
           >
             <path
               stroke-linecap="round"

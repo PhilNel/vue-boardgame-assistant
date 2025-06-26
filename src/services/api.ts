@@ -4,7 +4,7 @@ import type { ApiResponse, SendMessageRequest, GameInfo } from '@/types/chat'
 const getConfig = () => {
   // @ts-ignore - window.APP_CONFIG is loaded from config.js
   return window.APP_CONFIG || {
-    API_BASE_URL: 'https://7i699s4dxh.execute-api.eu-west-1.amazonaws.com/dev/api/v1',
+    API_BASE_URL: (import.meta as any).env?.VITE_API_BASE_URL || 'https://7i699s4dxh.execute-api.eu-west-1.amazonaws.com/dev/api/v1',
     API_KEY: (import.meta as any).env?.VITE_API_KEY || '', // Fallback to build-time env var
     ENVIRONMENT: 'development'
   }
