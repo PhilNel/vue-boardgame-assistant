@@ -66,7 +66,7 @@
                   
                   <div
                     v-else
-                    class="prose prose-invert max-w-none mb-3"
+                    class="prose prose-sm max-w-none text-gray-100"
                     v-html="formatMessageContent(message.content)"
                   ></div>
                   
@@ -185,13 +185,90 @@ const formatTime = (timestamp: Date): string => {
 }
 
 const formatMessageContent = (content: string): string => {
-  // Simple markdown-like formatting for assistant messages
-  return content
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-    .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
-    .replace(/`(.*?)`/g, '<code class="bg-gray-700 px-1 py-0.5 rounded text-sm">$1</code>') // Inline code
-    .replace(/^• (.+)$/gm, '<li class="ml-4">$1</li>') // Bullet points
-    .replace(/\n/g, '<br>') // Line breaks
+  // Split content into lines for easier processing
+  const lines = content.split('\n')
+  let result = []
+  let i = 0
+
+  while (i < lines.length) {
+    const line = lines[i].trim()
+    
+    if (line.startsWith('• ')) {
+      // Start a bullet point group
+      let bulletGroup = `<div class="my-2">`
+      bulletGroup += `<div class="flex items-start"><span class="mr-2 text-blue-400">•</span><span>${line.substring(2)}</span></div>`
+      
+      // Look ahead for sub-items (both dashes and indented bullets)
+      i++
+      while (i < lines.length) {
+        const nextLine = lines[i].trim()
+        const originalLine = lines[i]
+        
+        // Handle dashed sub-items
+        if (nextLine.startsWith('- ')) {
+          const subItem = nextLine.substring(2)
+          bulletGroup += `<div class="flex items-start ml-4 mt-1"><span class="mr-2 text-gray-400">-</span><span>${subItem}</span></div>`
+          i++
+        }
+        // Handle indented bullet points (nested bullets)
+        else if (originalLine.startsWith('  • ') || originalLine.startsWith('\t• ')) {
+          const subItem = nextLine.substring(2) // Remove the bullet
+          bulletGroup += `<div class="flex items-start ml-4 mt-1"><span class="mr-2 text-blue-400">•</span><span>${subItem}</span></div>`
+          i++
+        }
+        // Stop if we hit a non-sub-item
+        else {
+          break
+        }
+      }
+      
+      bulletGroup += `</div>`
+      result.push(bulletGroup)
+      continue
+    } else if (line.startsWith('- ')) {
+      // Handle standalone dashes as main bullet points
+      let bulletGroup = `<div class="my-2">`
+      bulletGroup += `<div class="flex items-start"><span class="mr-3 text-blue-400 font-bold">•</span><span>${line.substring(2)}</span></div>`
+      
+      // Look ahead for sub-items
+      i++
+      while (i < lines.length) {
+        const nextLine = lines[i].trim()
+        const originalLine = lines[i]
+        
+        // Handle nested dashes or bullets
+        if (nextLine.startsWith('- ') && (originalLine.startsWith('  ') || originalLine.startsWith('\t'))) {
+          const subItem = nextLine.substring(2)
+          bulletGroup += `<div class="flex items-start ml-6 mt-1"><span class="mr-2 text-gray-400">-</span><span>${subItem}</span></div>`
+          i++
+        }
+        else if (originalLine.startsWith('  • ') || originalLine.startsWith('\t• ')) {
+          const subItem = nextLine.substring(2)
+          bulletGroup += `<div class="flex items-start ml-6 mt-1"><span class="mr-2 text-blue-400">•</span><span>${subItem}</span></div>`
+          i++
+        }
+        // Stop if we hit a non-sub-item or another main item
+        else {
+          break
+        }
+      }
+      
+      bulletGroup += `</div>`
+      result.push(bulletGroup)
+      continue
+    } else if (line) {
+      // Regular paragraph
+      result.push(`<p class="mb-3">${line}</p>`)
+    }
+    
+    i++
+  }
+
+  return result
+    .join('')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`(.*?)`/g, '<code class="bg-gray-700 px-1 py-0.5 rounded text-sm">$1</code>')
 }
 
 // Auto-scroll to bottom when new messages arrive
