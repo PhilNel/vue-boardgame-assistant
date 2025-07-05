@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-screen bg-chat-bg">
+  <div class="chat-interface">
     <AppHeader :show-clear-button="messages.length > 1" @clear-chat="handleClearChat" />
 
     <GameSelector :selected-game="selectedGame" :available-games="availableGames" :current-game-info="currentGameInfo"
@@ -78,3 +78,12 @@ onMounted(() => {
   messageInputRef.value?.focus()
 })
 </script>
+
+<style scoped>
+.chat-interface {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #1a1a1a;
+}
+</style>
