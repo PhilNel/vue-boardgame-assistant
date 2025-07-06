@@ -94,6 +94,10 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh; /* Dynamic viewport height for mobile */
   background-color: #1a1a1a;
+  /* Ensure proper stacking and no overflow */
+  position: relative;
+  overflow: hidden;
 }
 </style>

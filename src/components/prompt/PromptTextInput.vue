@@ -78,6 +78,10 @@ defineExpose({
     line-height: 1.75;
     vertical-align: top;
     box-sizing: border-box;
+    /* Prevent mobile zoom on focus */
+    font-size: 16px; /* iOS won't zoom if font-size is 16px or larger */
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .prompt-input:focus {
@@ -88,5 +92,14 @@ defineExpose({
 .prompt-input:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 640px) {
+    .prompt-input {
+        height: 48px;
+        padding: 0.625rem 0.75rem;
+        font-size: 16px; /* Ensure no zoom on mobile */
+    }
 }
 </style>

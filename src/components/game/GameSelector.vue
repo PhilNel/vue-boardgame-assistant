@@ -110,6 +110,9 @@ const cancelGameChange = () => {
   background-color: #2d2d2d;
   border-bottom: 1px solid #404040;
   padding: 0.75rem 1rem;
+  /* Add safe area padding for mobile devices */
+  padding-left: max(1rem, env(safe-area-inset-left) + 1rem);
+  padding-right: max(1rem, env(safe-area-inset-right) + 1rem);
 }
 
 .game-selector-content {
@@ -150,6 +153,9 @@ const cancelGameChange = () => {
   width: 100%;
   appearance: none;
   cursor: pointer;
+  /* Prevent mobile zoom on focus */
+  font-size: 16px;
+  -webkit-appearance: none;
 }
 
 .game-select:focus {
@@ -192,6 +198,8 @@ const cancelGameChange = () => {
   align-items: center;
   justify-content: center;
   z-index: 50;
+  /* Add safe area padding for mobile */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 .confirmation-modal {
@@ -267,6 +275,39 @@ const cancelGameChange = () => {
 
   .game-description {
     font-size: 0.875rem;
+  }
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 640px) {
+  .game-selector-container {
+    padding: 0.5rem 0.75rem;
+    padding-left: max(0.75rem, env(safe-area-inset-left) + 0.75rem);
+    padding-right: max(0.75rem, env(safe-area-inset-right) + 0.75rem);
+  }
+  
+  .game-input-section {
+    gap: 0.5rem;
+  }
+  
+  .game-select {
+    padding: 0.5rem 1.75rem 0.5rem 0.625rem;
+    font-size: 16px; /* Ensure no zoom on mobile */
+  }
+  
+  .confirmation-modal {
+    margin: 0.75rem;
+    padding: 1.25rem;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .modal-button {
+    width: 100%;
+    justify-content: center;
   }
 }
 </style>

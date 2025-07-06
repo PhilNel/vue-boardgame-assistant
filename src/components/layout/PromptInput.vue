@@ -54,7 +54,11 @@ defineExpose({
     background-color: #2d2d2d;
     padding: 0.25rem;
     padding-left: 0.15rem;
-
+    /* Ensure input stays above mobile keyboard */
+    position: relative;
+    z-index: 10;
+    /* Add safe area padding for mobile */
+    padding-bottom: max(0.25rem, env(safe-area-inset-bottom));
 }
 
 .input-wrapper {
@@ -62,6 +66,9 @@ defineExpose({
     max-width: 56rem;
     margin: 0 auto;
     padding: 0.75rem;
+    /* Ensure minimum padding on mobile */
+    padding-left: max(0.75rem, env(safe-area-inset-left) + 0.75rem);
+    padding-right: max(0.75rem, env(safe-area-inset-right) + 0.75rem);
 }
 
 .input-row {
@@ -73,6 +80,19 @@ defineExpose({
 @media (min-width: 640px) {
     .input-container {
         padding-top: 0.5rem;
+    }
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 640px) {
+    .input-wrapper {
+        padding: 0.5rem;
+        padding-left: max(0.5rem, env(safe-area-inset-left) + 0.5rem);
+        padding-right: max(0.5rem, env(safe-area-inset-right) + 0.5rem);
+    }
+    
+    .input-row {
+        gap: 0.5rem;
     }
 }
 </style>

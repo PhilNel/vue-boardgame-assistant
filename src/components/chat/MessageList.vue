@@ -70,12 +70,17 @@ defineExpose({
 .message-list-container {
   flex: 1;
   overflow: hidden;
+  /* Ensure proper mobile scrolling */
+  -webkit-overflow-scrolling: touch;
 }
 
 .messages-scroll {
   height: 100%;
   overflow-y: auto;
   padding: 1rem 0.5rem 1.5rem;
+  /* Improve mobile scrolling */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .messages-content {
@@ -86,6 +91,9 @@ defineExpose({
   flex-direction: column;
   gap: 0.75rem;
   padding: 0 1rem;
+  /* Add safe area padding for mobile */
+  padding-left: max(1rem, env(safe-area-inset-left) + 1rem);
+  padding-right: max(1rem, env(safe-area-inset-right) + 1rem);
 }
 
 .message-wrapper {
@@ -137,6 +145,32 @@ defineExpose({
   .messages-content {
     gap: 1rem;
     padding: 0 3rem;
+    padding-left: max(3rem, env(safe-area-inset-left) + 3rem);
+    padding-right: max(3rem, env(safe-area-inset-right) + 3rem);
+  }
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 640px) {
+  .messages-scroll {
+    padding: 0.75rem 0.5rem 1rem;
+  }
+  
+  .messages-content {
+    gap: 0.5rem;
+    padding: 0 0.75rem;
+    padding-left: max(0.75rem, env(safe-area-inset-left) + 0.75rem);
+    padding-right: max(0.75rem, env(safe-area-inset-right) + 0.75rem);
+  }
+  
+  /* Hide scrollbar on mobile for cleaner look */
+  .messages-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .messages-scroll {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 </style>

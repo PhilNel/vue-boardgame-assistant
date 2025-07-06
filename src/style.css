@@ -8,7 +8,15 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
+  /* Use dynamic viewport height for mobile */
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for modern browsers */
   overflow: hidden;
+  /* Handle safe areas on mobile devices */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 body {
@@ -19,4 +27,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent mobile zoom on input focus */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
