@@ -3,7 +3,7 @@
     <AppHeader :show-clear-button="messages.length > 1" @clear-chat="handleClearChat"
       @open-settings="handleOpenSettings" />
 
-    <GameSelector :selected-game="selectedGame" :available-games="availableGames" :current-game-info="currentGameInfo"
+    <GameSelector :selected-game="selectedGameId" :available-games="availableGames" :current-game-info="currentGameInfo"
       :has-messages="messages.length > 1" @change-game="handleGameChange" />
 
     <MessageList ref="messageListRef" :messages="messages" @copy-message="handleCopyMessage"
@@ -19,6 +19,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useChat } from '@/composables/useChat'
+import { useGame } from '@/composables/useGame'
 import { useSettingsStore } from '@/stores/settings'
 import GameSelector from '@/components/game/GameSelector.vue'
 import MessageList from '@/components/chat/MessageList.vue'
@@ -26,33 +27,31 @@ import PromptInput from '@/components/layout/PromptInput.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import SettingsModal from '@/components/settings/SettingsModal.vue'
 
-// Chat composable
 const {
   messages,
-  selectedGame,
-  currentGameInfo,
   isLoading,
   canSendMessage,
   sendMessage,
-  changeGame,
   clearChat,
   retryLastMessage,
   copyMessage,
-  availableGames,
 } = useChat()
 
-// Settings store
+const {
+  selectedGame: currentGameInfo,
+  selectedGameId,
+  availableGames,
+  changeGame,
+} = useGame()
+
 const settingsStore = useSettingsStore()
 
-// Component refs
 const messageListRef = ref()
 const messageInputRef = ref()
 
-// Toast notification state
 const showToast = ref(false)
 const toastMessage = ref('')
 
-// Handlers
 const handleSendMessage = async (message: string) => {
   await sendMessage(message)
 }
@@ -85,7 +84,6 @@ const handleOpenSettings = () => {
   settingsStore.openModal()
 }
 
-// Focus input on mount
 onMounted(() => {
   messageInputRef.value?.focus()
 })

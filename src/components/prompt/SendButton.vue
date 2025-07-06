@@ -38,7 +38,10 @@ const props = defineProps<Props>()
 const emit = defineEmits<{ click: [] }>()
 
 const handleClick = () => {
-  if (!props.disabled && !props.isLoading) {
+  const isNotDisabled = !props.disabled
+  const isNotLoading = !props.isLoading
+  
+  if (isNotDisabled && isNotLoading) {
     emit('click')
   }
 }

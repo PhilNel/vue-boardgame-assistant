@@ -29,7 +29,10 @@ const message = ref('')
 const promptInputRef = ref()
 
 const handleSend = () => {
-    if (!props.canSend || !message.value.trim()) return
+    const cannotSend = !props.canSend
+    const messageIsEmpty = !message.value.trim()
+    
+    if (cannotSend || messageIsEmpty) return
 
     emit('send-message', message.value.trim())
     message.value = ''

@@ -81,12 +81,16 @@ const formatMessageContent = (content: string): string => {
           const subItem = nextLine.substring(2)
           bulletGroup += `<div class="sub-item"><span class="sub-bullet">-</span><span>${subItem}</span></div>`
           i++
-        } else if (originalLine.startsWith('  • ') || originalLine.startsWith('\t• ')) {
-          const subItem = nextLine.substring(2)
-          bulletGroup += `<div class="sub-item"><span class="bullet-point">•</span><span>${subItem}</span></div>`
-          i++
         } else {
-          break
+          const isIndentedBulletPoint = originalLine.startsWith('  • ') || originalLine.startsWith('\t• ')
+
+          if (isIndentedBulletPoint) {
+            const subItem = nextLine.substring(2)
+            bulletGroup += `<div class="sub-item"><span class="bullet-point">•</span><span>${subItem}</span></div>`
+            i++
+          } else {
+            break
+          }
         }
       }
 
@@ -102,16 +106,23 @@ const formatMessageContent = (content: string): string => {
         const nextLine = lines[i].trim()
         const originalLine = lines[i]
 
-        if (nextLine.startsWith('- ') && (originalLine.startsWith('  ') || originalLine.startsWith('\t'))) {
+        const isSubBulletItem = nextLine.startsWith('- ')
+        const isIndented = originalLine.startsWith('  ') || originalLine.startsWith('\t')
+
+        if (isSubBulletItem && isIndented) {
           const subItem = nextLine.substring(2)
           bulletGroup += `<div class="nested-sub-item"><span class="sub-bullet">-</span><span>${subItem}</span></div>`
           i++
-        } else if (originalLine.startsWith('  • ') || originalLine.startsWith('\t• ')) {
-          const subItem = nextLine.substring(2)
-          bulletGroup += `<div class="nested-sub-item"><span class="bullet-point">•</span><span>${subItem}</span></div>`
-          i++
         } else {
-          break
+          const isIndentedBulletPoint = originalLine.startsWith('  • ') || originalLine.startsWith('\t• ')
+
+          if (isIndentedBulletPoint) {
+            const subItem = nextLine.substring(2)
+            bulletGroup += `<div class="nested-sub-item"><span class="bullet-point">•</span><span>${subItem}</span></div>`
+            i++
+          } else {
+            break
+          }
         }
       }
 
@@ -166,8 +177,6 @@ const handleRetry = () => {
   gap: 0.5rem;
   margin-bottom: 0.25rem;
 }
-
-
 
 .error-title {
   font-weight: 500;

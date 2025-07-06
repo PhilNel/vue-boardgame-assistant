@@ -20,8 +20,10 @@ export class GamesService {
     const response = await this.httpClient.get("/games");
 
     if (response.success) {
-      // Transform API response to GameInfo format
-      if (response.data.games && Array.isArray(response.data.games)) {
+      const hasGamesData = response.data.games
+      const gamesDataIsArray = Array.isArray(response.data.games)
+      
+      if (hasGamesData && gamesDataIsArray) {
         return response.data.games.map((game: string) => ({
           id: game,
           name: game.charAt(0).toUpperCase() + game.slice(1),
