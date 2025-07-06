@@ -1,33 +1,14 @@
 <template>
-  <button
-    @click="handleClick"
-    :disabled="disabled"
-    class="send-button"
-    :class="{ 'disabled': disabled }"
-    aria-label="Send message"
-  >
-    <!-- Send icon (paper airplane pointing right) -->
-    <svg
-      v-if="!isLoading"
-      class="send-icon"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-      />
-    </svg>
-    
-    <!-- Loading spinner -->
+  <button @click="handleClick" :disabled="disabled" class="send-button" :class="{ 'disabled': disabled }"
+    aria-label="Send message">
+    <SendIcon v-if="!isLoading" />
     <div v-else class="loading-spinner"></div>
   </button>
 </template>
 
 <script setup lang="ts">
+import { SendIcon } from '@/components/ui/icons'
+
 interface Props {
   disabled?: boolean
   isLoading?: boolean
@@ -40,7 +21,7 @@ const emit = defineEmits<{ click: [] }>()
 const handleClick = () => {
   const isNotDisabled = !props.disabled
   const isNotLoading = !props.isLoading
-  
+
   if (isNotDisabled && isNotLoading) {
     emit('click')
   }
@@ -73,13 +54,6 @@ const handleClick = () => {
   cursor: not-allowed;
 }
 
-.send-icon {
-  width: 1rem;
-  height: 1rem;
-  transform: rotate(90deg);
-  display: block;
-}
-
 .loading-spinner {
   width: 1rem;
   height: 1rem;
@@ -94,4 +68,4 @@ const handleClick = () => {
     transform: rotate(360deg);
   }
 }
-</style> 
+</style>
