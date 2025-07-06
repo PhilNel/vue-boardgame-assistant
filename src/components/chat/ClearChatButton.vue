@@ -5,13 +5,13 @@
     class="clear-button"
     title="Clear chat history"
   >
-    <ClearIcon class="clear-icon" />
+    <ClearIcon />
     <span class="clear-text">Clear Chat</span>
   </button>
 </template>
 
 <script setup lang="ts">
-import { h } from 'vue'
+import { ClearIcon } from '@/components/ui/icons'
 
 interface Props {
     showButton: boolean
@@ -20,19 +20,6 @@ interface Props {
 defineProps<Props>()
 
 const emit = defineEmits<{ 'clear-chat': [] }>()
-
-const ClearIcon = {
-    render() {
-        return h('svg', {
-            viewBox: '0 0 24 24',
-            fill: 'none',
-            stroke: 'currentColor',
-            'stroke-width': '2'
-        }, [
-            h('path', { d: 'M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14zM10 11v6M14 11v6' })
-        ])
-    }
-}
 
 const handleClearChat = () => {
     if (confirm('Are you sure you want to clear the chat history?')) {

@@ -1,6 +1,7 @@
 <template>
   <div class="chat-interface">
-    <AppHeader :show-clear-button="messages.length > 1" @clear-chat="handleClearChat" />
+    <AppHeader :show-clear-button="messages.length > 1" @clear-chat="handleClearChat"
+      @open-settings="handleOpenSettings" />
 
     <GameSelector :selected-game="selectedGame" :available-games="availableGames" :current-game-info="currentGameInfo"
       :has-messages="messages.length > 1" @change-game="handleGameChange" />
@@ -10,16 +11,20 @@
 
     <PromptInput ref="messageInputRef" :can-send="canSendMessage" :is-loading="isLoading"
       @send-message="handleSendMessage" />
+
+    <SettingsModal />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useChat } from '@/composables/useChat'
+import { useSettingsStore } from '@/stores/settings'
 import GameSelector from '@/components/game/GameSelector.vue'
 import MessageList from '@/components/chat/MessageList.vue'
 import PromptInput from '@/components/layout/PromptInput.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
+import SettingsModal from '@/components/settings/SettingsModal.vue'
 
 // Chat composable
 const {
@@ -35,6 +40,9 @@ const {
   copyMessage,
   availableGames,
 } = useChat()
+
+// Settings store
+const settingsStore = useSettingsStore()
 
 // Component refs
 const messageListRef = ref()
@@ -71,6 +79,10 @@ const handleCopyMessage = async (messageId: string) => {
 
 const handleRetryMessage = async () => {
   await retryLastMessage()
+}
+
+const handleOpenSettings = () => {
+  settingsStore.openModal()
 }
 
 // Focus input on mount

@@ -11,6 +11,9 @@
             </div>
 
             <div class="header-actions">
+                <button @click="handleSettingsClick" class="settings-button" title="Settings">
+                    <SettingsIcon />
+                </button>
                 <ClearChatButton :show-button="showClearButton" @clear-chat="$emit('clear-chat')" />
             </div>
         </div>
@@ -20,6 +23,7 @@
 <script setup lang="ts">
 import WizardAvatar from '@/components/ui/WizardAvatar.vue'
 import ClearChatButton from '@/components/chat/ClearChatButton.vue'
+import { SettingsIcon } from '@/components/ui/icons'
 
 interface Props {
     showClearButton: boolean
@@ -27,7 +31,14 @@ interface Props {
 
 defineProps<Props>()
 
-defineEmits<{ 'clear-chat': [] }>()
+const emit = defineEmits<{ 
+    'clear-chat': []
+    'open-settings': []
+}>()
+
+const handleSettingsClick = () => {
+    emit('open-settings')
+}
 </script>
 
 <style scoped>
@@ -82,6 +93,23 @@ defineEmits<{ 'clear-chat': [] }>()
     align-items: center;
     gap: 0.5rem;
     flex-shrink: 0;
+}
+
+.settings-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    background-color: #2d2d2d;
+    color: #f3f4f6;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 200ms;
+}
+
+.settings-button:hover {
+    background-color: #4b5563;
 }
 
 @media (min-width: 640px) {

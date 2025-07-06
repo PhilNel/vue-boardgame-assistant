@@ -1,18 +1,17 @@
 import type { ApiResponse, SendMessageRequest, GameInfo } from '@/types/chat'
+import { useSettingsStore } from '@/stores/settings'
 
 // Runtime configuration
 const getConfig = () => {
   // @ts-ignore - window.APP_CONFIG is loaded from config.js
   return window.APP_CONFIG || {
     API_BASE_URL: (import.meta as any).env?.VITE_API_BASE_URL || 'https://7i699s4dxh.execute-api.eu-west-1.amazonaws.com/dev/api/v1',
-    API_KEY: (import.meta as any).env?.VITE_API_KEY || '', // Fallback to build-time env var
     ENVIRONMENT: 'development'
   }
 }
 
 const config = getConfig()
 
-// Available games
 export const AVAILABLE_GAMES: GameInfo[] = [
   {
     id: 'nemesis',
@@ -24,7 +23,11 @@ export const AVAILABLE_GAMES: GameInfo[] = [
 
 // API configuration
 const API_BASE_URL = config.API_BASE_URL
-const API_KEY = config.API_KEY
+
+const getApiKey = (): string => {
+  const settingsStore = useSettingsStore()
+  return settingsStore.apiKey
+}
 
 function handleApiError(error: any): ApiResponse {
   console.error('API Error:', error)
@@ -51,7 +54,17 @@ function handleApiError(error: any): ApiResponse {
 export class ApiService {
   static async sendMessage(request: SendMessageRequest): Promise<ApiResponse> {
     try {
-      // Validate input
+      const apiKey = getApiKey()
+      if (!apiKey) {
+        return {
+          success: false,
+          error: {
+            code: 'NO_API_KEY',
+            message: 'Please set your API key in the settings to use the assistant.',
+          }
+        }
+      }
+
       if (!request.message.trim()) {
         return {
           success: false,
@@ -64,12 +77,11 @@ export class ApiService {
 
       console.log('🚀 Sending request to API:', { game: request.game, question: request.message })
 
-      // Make API call to your AWS API Gateway
       const response = await fetch(`${API_BASE_URL}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': API_KEY,
+          'x-api-key': apiKey,
         },
         body: JSON.stringify({
           gameName: request.game,
@@ -87,7 +99,7 @@ export class ApiService {
             success: false,
             error: {
               code: 'UNAUTHORIZED',
-              message: 'API key is invalid or missing. Please check your configuration.',
+              message: 'API key is invalid or missing. Please set your API key in the settings.',
             }
           }
         }
@@ -111,7 +123,6 @@ export class ApiService {
         }
       }
 
-      // Parse successful response
       const data = await response.json()
       console.log('✅ API Response received:', data)
       
@@ -132,7 +143,7 @@ export class ApiService {
     try {
       const response = await fetch(`${API_BASE_URL}/games`, {
         headers: {
-          'x-api-key': API_KEY,
+          'x-api-key': getApiKey(),
         },
       })
 

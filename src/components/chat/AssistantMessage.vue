@@ -10,7 +10,7 @@
       <!-- Error State -->
       <div v-if="message.error" class="error-message">
         <div class="error-header">
-          <AlertIcon class="error-icon" />
+          <AlertIcon />
           <span class="error-title">Error</span>
         </div>
         <div class="error-text">{{ message.content }}</div>
@@ -29,7 +29,7 @@
         </div>
 
         <button @click="handleCopy" class="copy-button" title="Copy message">
-          <CopyIcon class="copy-icon" />
+          <CopyIcon />
         </button>
       </div>
     </div>
@@ -37,9 +37,9 @@
 </template>
 
 <script setup lang="ts">
-import { h } from 'vue'
 import type { ChatMessage } from '@/types/chat'
 import ResponseLoadingSpinner from '@/components/prompt/ResponseLoadingSpinner.vue'
+import { AlertIcon, CopyIcon } from '@/components/ui/icons'
 
 interface Props {
   message: ChatMessage
@@ -51,31 +51,6 @@ const emit = defineEmits<{
   'copy-message': [messageId: string]
   'retry-message': []
 }>()
-
-const CopyIcon = {
-  render() {
-    return h('svg', {
-      viewBox: '0 0 24 24',
-      fill: 'none',
-      stroke: 'currentColor',
-      'stroke-width': '2'
-    }, [
-      h('rect', { x: '9', y: '9', width: '13', height: '13', rx: '2', ry: '2' }),
-      h('path', { d: 'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1' })
-    ])
-  }
-}
-
-const AlertIcon = {
-  render() {
-    return h('svg', {
-      viewBox: '0 0 24 24',
-      fill: 'currentColor'
-    }, [
-      h('path', { d: 'M13 14H11V9H13M13 18H11V16H13M1 21H23L12 2L1 21Z' })
-    ])
-  }
-}
 
 const formatTime = (timestamp: Date): string => {
   return new Intl.DateTimeFormat('en-US', {
@@ -192,10 +167,7 @@ const handleRetry = () => {
   margin-bottom: 0.25rem;
 }
 
-.error-icon {
-  width: 1rem;
-  height: 1rem;
-}
+
 
 .error-title {
   font-weight: 500;
@@ -250,11 +222,6 @@ const handleRetry = () => {
 .copy-button:hover {
   opacity: 1;
   background-color: #4b5563;
-}
-
-.copy-icon {
-  width: 1rem;
-  height: 1rem;
 }
 
 /* Content formatting styles */

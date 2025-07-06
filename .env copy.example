@@ -1,8 +1,5 @@
 # Board Game Assistant API Configuration
 # Copy this file to .env and fill in your actual API key
 
-# API Gateway API Key - Get this from AWS Console after creating your API key
-VITE_API_KEY=<your-api-key-here>
-
 # Optional: Override API base URL if using a different environment
 # VITE_API_BASE_URL=https://your-api-id.execute-api.region.amazonaws.com/dev/api/v1
