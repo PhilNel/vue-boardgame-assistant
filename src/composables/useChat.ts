@@ -1,7 +1,7 @@
 import { reactive, computed, nextTick } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 import type { ChatMessage, ChatSession, ChatState, LoadingState } from '@/types/chat'
-import { ApiService, AVAILABLE_GAMES } from '@/services/api'
+import { chatService, AVAILABLE_GAMES } from '@/services'
 
 // Global state (persists across component unmounts)
 const chatState = reactive<ChatState>({
@@ -84,7 +84,7 @@ export function useChat() {
       scrollToBottom()
 
       // Call API
-      const response = await ApiService.sendMessage({
+      const response = await chatService.sendMessage({
         message: content,
         sessionId: chatState.currentSession.id,
         game: chatState.selectedGame,
@@ -208,7 +208,7 @@ export function useChat() {
       scrollToBottom()
 
       // Call API with the existing user message content
-      const response = await ApiService.sendMessage({
+      const response = await chatService.sendMessage({
         message: lastUserMessage.content,
         sessionId: chatState.currentSession.id,
         game: chatState.selectedGame,
