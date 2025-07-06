@@ -64,6 +64,7 @@ const handleCopy = () => {
 .message-footer {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 0.5rem;
     margin-top: 0.75rem;
 }
