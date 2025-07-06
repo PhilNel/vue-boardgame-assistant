@@ -1,10 +1,10 @@
 <template>
     <div class="empty-state">
         <div class="avatar-container">
-            <WizardAvatar class="wizard-avatar" />
+            <Avatar class="avatar" />
         </div>
         <h3 class="title">
-            Welcome to Boardgame Wiz
+            Welcome to Boardgame Warlock
         </h3>
         <p class="subtitle">
             Ready to conjure up some game rule magic? Ask me anything!
@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import WizardAvatar from '@/components/ui/WizardAvatar.vue'
+import Avatar from '@/components/ui/Avatar.vue'
 </script>
 
 <style scoped>
@@ -28,7 +28,7 @@ import WizardAvatar from '@/components/ui/WizardAvatar.vue'
     margin: 0 auto 1rem;
 }
 
-.wizard-avatar {
+.avatar {
     width: 4rem;
     height: 4rem;
 }

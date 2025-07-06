@@ -1,7 +1,7 @@
 {
-  "name": "boardgame-wiz",
+  "name": "boardgame-warlock",
   "version": "1.0.0",
-  "description": "Boardgame Wiz - Your magical AI assistant for board game rules and gameplay",
+  "description": "Boardgame Warlock - Your magical AI assistant for board game rules and gameplay",
   "type": "module",
   "scripts": {
     "dev": "vite",

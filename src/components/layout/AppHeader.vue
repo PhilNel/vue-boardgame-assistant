@@ -3,10 +3,10 @@
         <div class="header-content">
             <div class="app-title">
                 <div class="avatar-container">
-                    <WizardAvatar class="wizard-avatar" />
+                    <Avatar class="avatar" />
                 </div>
                 <h1 class="title-text">
-                    Boardgame Wiz
+                    Boardgame Warlock
                 </h1>
             </div>
 
@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import WizardAvatar from '@/components/ui/WizardAvatar.vue'
+import Avatar from '@/components/ui/Avatar.vue'
 import ClearChatButton from '@/components/chat/ClearChatButton.vue'
 import { SettingsIcon } from '@/components/ui/icons'
 
@@ -76,7 +76,7 @@ const handleSettingsClick = () => {
     flex-shrink: 0;
 }
 
-.wizard-avatar {
+.avatar {
     width: 2rem;
     height: 2rem;
 }

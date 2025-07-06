@@ -43,7 +43,7 @@ export const useChatStore = defineStore("chat", {
       };
 
       const welcomeMessage = createAssistantMessage(
-        `Welcome to Boardgame Wiz! \nI'm Ernest, your magical assistant for ${
+        `Welcome to Boardgame Warlock! \nI'm Ernest, your magical assistant for ${
           game?.name || "board game"
         } rules. \nHow can I help you today?`
       );

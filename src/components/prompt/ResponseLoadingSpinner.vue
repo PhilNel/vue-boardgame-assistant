@@ -1,8 +1,8 @@
 <template>
     <div class="loading-container">
-        <!-- Wizard Avatar with subtle pulse animation -->
+        <!-- Avatar with subtle pulse animation -->
         <div class="avatar-container">
-            <WizardAvatar class="avatar" />
+            <Avatar class="avatar" />
         </div>
 
         <!-- Thinking dots -->
@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import WizardAvatar from '@/components/ui/WizardAvatar.vue'
+import Avatar from '@/components/ui/Avatar.vue'
 </script>
 
 <style scoped>

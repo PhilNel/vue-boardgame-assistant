@@ -1,9 +1,9 @@
 <template>
-  <img src="/wizard-ernest-optimised.png" alt="Ernest the Wizard" class="wizard-avatar" />
+  <img src="/avatar-ernest-optimised.png" alt="Ernest the Warlock" class="avatar" />
 </template>
 
 <style scoped>
-.wizard-avatar {
+.avatar {
   width: 100%;
   height: 100%;
   object-fit: cover;
