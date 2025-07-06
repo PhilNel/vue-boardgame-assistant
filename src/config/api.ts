@@ -2,7 +2,7 @@ import { HttpClient } from "@/services/httpClient";
 
 const API_BASE_URL =
   (import.meta as any).env.VITE_API_BASE_URL ||
-  "https://7i699s4dxh.execute-api.eu-west-1.amazonaws.com/dev/api/v1";
+  "https://api.boardgamewarlock.com/api/v1";
 
 export const httpClient = new HttpClient({
   baseURL: API_BASE_URL,
