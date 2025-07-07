@@ -11,8 +11,6 @@ const S3_PREFIX =
     ? process.env.S3_PREFIX
     : "vue-boardgame-assistant";
 const AWS_PROFILE = process.env.AWS_PROFILE || "default";
-const CLOUDFRONT_DISTRIBUTION_ID = 
-  process.env.CLOUDFRONT_DISTRIBUTION_ID || "E2TG71WCF6SOU";
 const DIST_DIR = "dist";
 
 if (!S3_ARTEFACT_BUCKET) {
@@ -33,9 +31,8 @@ if (!existsSync(DIST_DIR)) {
 const prefixToUse = S3_PREFIX ? `${S3_PREFIX}/` : "";
 const targetPath = `s3://${S3_ARTEFACT_BUCKET}/${prefixToUse}`;
 
-console.log(`🚀 Uploading to S3 bucket: ${S3_ARTEFACT_BUCKET}`);
-console.log(`🏷️ Prefix: ${S3_PREFIX || "(root)"}`);
-console.log(`☁️ CloudFront Distribution: ${CLOUDFRONT_DISTRIBUTION_ID}`);
+console.log(`Uploading to S3 bucket: ${S3_ARTEFACT_BUCKET}`);
+console.log(`Prefix: ${S3_PREFIX || "(root)"}`);
 
 try {
   execSync("aws --version", { stdio: "pipe" });
@@ -45,25 +42,12 @@ try {
 }
 
 try {
-  console.log("📦 Syncing files to S3...");
+  console.log(" Syncing files to S3...");
   const syncCommand = `aws s3 sync ${DIST_DIR}/ ${targetPath} --profile ${AWS_PROFILE} --delete`;
 
   execSync(syncCommand, { stdio: "inherit" });
 
   console.log("✅ S3 upload completed!");
-
-  // Invalidate CloudFront cache
-  console.log("🔄 Invalidating CloudFront cache...");
-  const invalidateCommand = `aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_DISTRIBUTION_ID} --paths "/*" --profile ${AWS_PROFILE}`;
-  
-  const invalidationResult = execSync(invalidateCommand, { encoding: "utf8" });
-  const invalidationData = JSON.parse(invalidationResult);
-  const invalidationId = invalidationData.Invalidation.Id;
-  
-  console.log(`✅ CloudFront invalidation created: ${invalidationId}`);
-  console.log("⏳ Cache invalidation typically takes 1-3 minutes to complete");
-  console.log("🌐 Your website should reflect the latest changes shortly!");
-
 } catch (error) {
   console.error("❌ Deployment failed:", error.message);
   process.exit(1);

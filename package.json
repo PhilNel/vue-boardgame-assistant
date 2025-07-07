@@ -5,14 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "build:with-types": "vue-tsc && vite build",
-    "build:prod": "NODE_ENV=production vite build",
+    "build": "NODE_ENV=production vite build",
     "build:s3": "bun scripts/build-for-s3.js",
     "deploy:s3": "bun scripts/deploy-to-s3.js",
-    "build-and-deploy": "bun run build:s3 && bun run deploy:s3",
+    "invalidate": "bun scripts/invalidate-cloudfront.js",
     "preview": "vite preview",
-    "type-check": "vue-tsc --noEmit",
     "clean": "rm -rf dist"
   },
   "dependencies": {
