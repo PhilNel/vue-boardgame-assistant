@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import ChatInterface from '@/components/ChatInterface.vue'
+import ChatInterface from '@/views/ChatInterface.vue'
 </script>
 
 <style>
