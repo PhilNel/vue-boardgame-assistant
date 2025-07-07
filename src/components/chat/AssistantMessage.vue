@@ -40,6 +40,7 @@
 import type { ChatMessage } from '@/types/chat'
 import ResponseLoadingSpinner from '@/components/prompt/ResponseLoadingSpinner.vue'
 import { AlertIcon, CopyIcon } from '@/components/ui/icons'
+import { formatMessageContent } from '@/utils/messageFormatter'
 
 interface Props {
   message: ChatMessage
@@ -58,89 +59,6 @@ const formatTime = (timestamp: Date): string => {
     minute: '2-digit',
     hour12: true,
   }).format(timestamp)
-}
-
-const formatMessageContent = (content: string): string => {
-  const lines = content.split('\n')
-  let result = []
-  let i = 0
-
-  while (i < lines.length) {
-    const line = lines[i].trim()
-
-    if (line.startsWith('• ')) {
-      let bulletGroup = `<div class="bullet-group">`
-      bulletGroup += `<div class="bullet-item"><span class="bullet-point">•</span><span>${line.substring(2)}</span></div>`
-
-      i++
-      while (i < lines.length) {
-        const nextLine = lines[i].trim()
-        const originalLine = lines[i]
-
-        if (nextLine.startsWith('- ')) {
-          const subItem = nextLine.substring(2)
-          bulletGroup += `<div class="sub-item"><span class="sub-bullet">-</span><span>${subItem}</span></div>`
-          i++
-        } else {
-          const isIndentedBulletPoint = originalLine.startsWith('  • ') || originalLine.startsWith('\t• ')
-
-          if (isIndentedBulletPoint) {
-            const subItem = nextLine.substring(2)
-            bulletGroup += `<div class="sub-item"><span class="bullet-point">•</span><span>${subItem}</span></div>`
-            i++
-          } else {
-            break
-          }
-        }
-      }
-
-      bulletGroup += `</div>`
-      result.push(bulletGroup)
-      continue
-    } else if (line.startsWith('- ')) {
-      let bulletGroup = `<div class="bullet-group">`
-      bulletGroup += `<div class="bullet-item"><span class="main-bullet">•</span><span>${line.substring(2)}</span></div>`
-
-      i++
-      while (i < lines.length) {
-        const nextLine = lines[i].trim()
-        const originalLine = lines[i]
-
-        const isSubBulletItem = nextLine.startsWith('- ')
-        const isIndented = originalLine.startsWith('  ') || originalLine.startsWith('\t')
-
-        if (isSubBulletItem && isIndented) {
-          const subItem = nextLine.substring(2)
-          bulletGroup += `<div class="nested-sub-item"><span class="sub-bullet">-</span><span>${subItem}</span></div>`
-          i++
-        } else {
-          const isIndentedBulletPoint = originalLine.startsWith('  • ') || originalLine.startsWith('\t• ')
-
-          if (isIndentedBulletPoint) {
-            const subItem = nextLine.substring(2)
-            bulletGroup += `<div class="nested-sub-item"><span class="bullet-point">•</span><span>${subItem}</span></div>`
-            i++
-          } else {
-            break
-          }
-        }
-      }
-
-      bulletGroup += `</div>`
-      result.push(bulletGroup)
-      continue
-    } else if (line) {
-      result.push(`<p class="paragraph">${line}</p>`)
-    }
-
-    i++
-  }
-
-  return result
-    .join('')
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/`(.*?)`/g, '<code class="inline-code">$1</code>')
 }
 
 const handleCopy = () => {
@@ -261,6 +179,21 @@ const handleRetry = () => {
   margin-top: 0.25rem;
 }
 
+:deep(.numbered-group) {
+  margin: 0.5rem 0;
+}
+
+:deep(.numbered-item) {
+  margin-bottom: 0.25rem;
+}
+
+:deep(.numbered-sub-item) {
+  display: flex;
+  align-items: flex-start;
+  margin-left: 1rem;
+  margin-top: 0.25rem;
+}
+
 :deep(.bullet-point) {
   color: #60a5fa;
   margin-right: 0.5rem;
@@ -275,6 +208,12 @@ const handleRetry = () => {
 :deep(.sub-bullet) {
   color: #9ca3af;
   margin-right: 0.5rem;
+}
+
+:deep(.numbered-marker) {
+  color: #9ca3af;
+  margin-right: 0.5rem;
+  font-weight: 500;
 }
 
 :deep(strong) {
