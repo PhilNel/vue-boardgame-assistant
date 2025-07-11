@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue'
+import { ref, nextTick, onMounted, watch } from 'vue'
 import type { ChatMessage } from '@/types/chat'
 import UserMessage from '@/components/chat/UserMessage.vue'
 import AssistantMessage from '@/components/chat/AssistantMessage.vue'
@@ -59,6 +59,11 @@ watch(() => props.messages, async () => {
   await nextTick()
   scrollToBottom()
 }, { deep: true })
+
+onMounted(async () => {
+  await nextTick()
+  scrollToBottom()
+})
 
 // Expose scroll method for parent components
 defineExpose({
@@ -155,19 +160,19 @@ defineExpose({
   .messages-scroll {
     padding: 0.75rem 0.5rem 1rem;
   }
-  
+
   .messages-content {
     gap: 0.5rem;
     padding: 0 0.75rem;
     padding-left: max(0.75rem, env(safe-area-inset-left) + 0.75rem);
     padding-right: max(0.75rem, env(safe-area-inset-right) + 0.75rem);
   }
-  
+
   /* Hide scrollbar on mobile for cleaner look */
   .messages-scroll::-webkit-scrollbar {
     display: none;
   }
-  
+
   .messages-scroll {
     -ms-overflow-style: none;
     scrollbar-width: none;

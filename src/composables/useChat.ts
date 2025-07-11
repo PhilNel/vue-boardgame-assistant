@@ -3,53 +3,32 @@ import { useChatStore } from "@/stores/chatStore";
 import { useGameStore } from "@/stores/gameStore";
 import { createUserMessage, createLoadingMessage } from "@/utils/messageUtils";
 import {
-  scrollToBottom,
   handleApiResponse,
   handleApiError,
   sendChatMessage,
 } from "@/utils/chatUtils";
 
 export function useChat() {
+  
   const chatStore = useChatStore();
   const gameStore = useGameStore();
-
-  chatStore.initializeSession();
+  chatStore.initializeForGame(gameStore.selectedGameId);
 
   const sendMessage = async (content: string) => {
     if (!content.trim()) return;
 
-    chatStore.initializeSession();
-
     const userMessage = createUserMessage(content);
-    const loadingMessage = createLoadingMessage();
-
     chatStore.addMessage(userMessage);
-    chatStore.addMessage(loadingMessage);
-    chatStore.setLoading(true);
-    chatStore.clearError();
 
-    try {
-      await nextTick();
-      scrollToBottom();
-
-      const response = await sendChatMessage(
-        content,
-        chatStore.currentSessionId!,
-        gameStore.selectedGameId
-      );
-
-      await handleApiResponse(response, loadingMessage, chatStore);
-    } catch (error) {
-      handleApiError(error, loadingMessage, chatStore);
-    } finally {
-      chatStore.setLoading(false);
-      await nextTick();
-      scrollToBottom();
-    }
+    await sendMessageWithLoading(content);
   };
 
   const clearChat = () => {
-    chatStore.clearCurrentSession();
+    chatStore.clearMessages();
+  };
+
+  const startNewConversation = () => {
+    chatStore.startNewConversation();
   };
 
   const retryLastMessage = async () => {
@@ -57,30 +36,7 @@ export function useChat() {
     if (!lastUserMessage) return;
 
     chatStore.removeMessagesAfterUserMessage(lastUserMessage.id);
-
-    const loadingMessage = createLoadingMessage();
-    chatStore.addMessage(loadingMessage);
-    chatStore.setLoading(true);
-    chatStore.clearError();
-
-    try {
-      await nextTick();
-      scrollToBottom();
-
-      const response = await sendChatMessage(
-        lastUserMessage.content,
-        chatStore.currentSessionId!,
-        gameStore.selectedGameId
-      );
-
-      await handleApiResponse(response, loadingMessage, chatStore);
-    } catch (error) {
-      handleApiError(error, loadingMessage, chatStore);
-    } finally {
-      chatStore.setLoading(false);
-      await nextTick();
-      scrollToBottom();
-    }
+    await sendMessageWithLoading(lastUserMessage.content);
   };
 
   const copyMessage = async (messageId: string) => {
@@ -96,6 +52,31 @@ export function useChat() {
     }
   };
 
+
+  const sendMessageWithLoading = async (content: string) => {
+    const loadingMessage = createLoadingMessage();
+    chatStore.addMessage(loadingMessage);
+    chatStore.setLoading(true);
+    chatStore.clearError();
+
+    try {
+      await nextTick();
+
+      const response = await sendChatMessage(
+        content,
+        crypto.randomUUID(),
+        gameStore.selectedGameId
+      );
+
+      await handleApiResponse(response, loadingMessage, chatStore);
+    } catch (error) {
+      handleApiError(error, loadingMessage, chatStore);
+    } finally {
+      chatStore.setLoading(false);
+      await nextTick();
+    }
+  };
+
   return {
     messages: computed(() => chatStore.messages),
     isLoading: computed(() => chatStore.isSending),
@@ -104,8 +85,8 @@ export function useChat() {
     error: computed(() => chatStore.error),
     sendMessage,
     clearChat,
+    startNewConversation,
     retryLastMessage,
     copyMessage,
-    scrollToBottom,
   };
 }

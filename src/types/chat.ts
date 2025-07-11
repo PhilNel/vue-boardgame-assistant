@@ -5,6 +5,7 @@ export interface ChatMessage {
   timestamp: Date
   isLoading?: boolean
   error?: string
+  token_count?: number // For future use with token counting
 }
 
 export interface ChatSession {
@@ -12,6 +13,14 @@ export interface ChatSession {
   game: string
   messages: ChatMessage[]
   createdAt: Date
+}
+
+export interface ConversationContext {
+  session_id: string
+  game: string
+  messages: ChatMessage[] // Max 4 messages
+  created_at: Date
+  last_updated: Date
 }
 
 export interface GameInfo {
@@ -37,6 +46,14 @@ export interface SendMessageRequest {
   message: string
   sessionId: string
   game: string
+  conversation_history?: ChatMessage[] // For future backend integration
+}
+
+export interface ContextualChatRequest {
+  question: string
+  game: string
+  session_id: string
+  conversation_history?: ChatMessage[] // Last 4 messages
 }
 
 export interface ChatState {
