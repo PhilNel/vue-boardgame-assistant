@@ -1,6 +1,6 @@
 <template>
   <div class="message-list-container">
-    <div ref="messagesContainer" class="messages-scroll">
+    <div ref="messagesContainer" class="messages-scroll" :class="{ 'show-scrollbar': showScrollbar }">
       <div class="messages-content">
         <TransitionGroup name="message" tag="div">
           <div v-for="message in messages" :key="message.id" class="message-wrapper">
@@ -39,6 +39,7 @@ const emit = defineEmits<{
 }>()
 
 const messagesContainer = ref<HTMLElement>()
+const showScrollbar = ref(false)
 
 const handleCopyMessage = (messageId: string) => {
   emit('copy-message', messageId)
@@ -54,15 +55,24 @@ const scrollToBottom = () => {
   }
 }
 
+const checkScrollbar = () => {
+  if (messagesContainer.value) {
+    const { scrollHeight, clientHeight } = messagesContainer.value
+    showScrollbar.value = scrollHeight > clientHeight
+  }
+}
+
 // Auto-scroll to bottom when new messages arrive
 watch(() => props.messages, async () => {
   await nextTick()
   scrollToBottom()
+  checkScrollbar()
 }, { deep: true })
 
 onMounted(async () => {
   await nextTick()
   scrollToBottom()
+  checkScrollbar()
 })
 
 // Expose scroll method for parent components
@@ -81,11 +91,47 @@ defineExpose({
 
 .messages-scroll {
   height: 100%;
-  overflow-y: auto;
+  overflow-y: hidden;
+  overflow-x: hidden;
   padding: 1rem 0.5rem 1.5rem;
   /* Improve mobile scrolling */
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+}
+
+/* Only show scrollbar when content overflows */
+.messages-scroll.show-scrollbar {
+  overflow-y: auto;
+  /* Better scrollbar behavior */
+  scrollbar-width: thin;
+  scrollbar-color: #4b5563 transparent;
+}
+
+/* Custom scrollbar for webkit browsers - only when scrollbar is shown */
+.messages-scroll.show-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages-scroll.show-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messages-scroll.show-scrollbar::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 3px;
+  /* Make scrollbar more subtle */
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.messages-scroll.show-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+  opacity: 1;
+}
+
+/* Show scrollbar on hover/scroll */
+.messages-scroll.show-scrollbar:not(:hover)::-webkit-scrollbar-thumb {
+  opacity: 0.3;
 }
 
 .messages-content {
@@ -122,24 +168,6 @@ defineExpose({
 .message-leave-to {
   opacity: 0;
   transform: translateY(-10px);
-}
-
-/* Custom scrollbar */
-.messages-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-
-.messages-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.messages-scroll::-webkit-scrollbar-thumb {
-  background: #4b5563;
-  border-radius: 3px;
-}
-
-.messages-scroll::-webkit-scrollbar-thumb:hover {
-  background: #6b7280;
 }
 
 @media (min-width: 640px) {
