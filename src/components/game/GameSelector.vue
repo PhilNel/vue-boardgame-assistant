@@ -14,46 +14,23 @@
               </option>
             </select>
 
-            <!-- Custom dropdown arrow -->
             <div class="select-arrow">
-              <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
+              <ChevronDownIcon />
             </div>
           </div>
         </div>
-
-        <div class="game-description">
-          {{ currentGameInfo?.description }}
-        </div>
       </div>
     </div>
   </div>
 
-  <!-- Game change confirmation modal -->
-  <div v-if="showConfirmation" class="modal-overlay" @click="cancelGameChange">
-    <div class="confirmation-modal" @click.stop>
-      <h3 class="modal-title">
-        Change Game?
-      </h3>
-      <p class="modal-text">
-        Changing games will clear your current chat history. Are you sure you want to continue?
-      </p>
-      <div class="modal-actions">
-        <button @click="cancelGameChange" class="modal-button secondary">
-          Cancel
-        </button>
-        <button @click="confirmGameChange" class="modal-button primary">
-          Change Game
-        </button>
-      </div>
-    </div>
-  </div>
+  <GameChangeConfirmationModal :show="showConfirmation" @confirm="confirmGameChange" @cancel="cancelGameChange" />
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { GameInfo } from '@/types/chat'
+import ChevronDownIcon from '@/components/ui/icons/ChevronDownIcon.vue'
+import GameChangeConfirmationModal from './GameChangeConfirmationModal.vue'
 
 interface Props {
   selectedGame: string
@@ -173,11 +150,6 @@ const cancelGameChange = () => {
   align-items: center;
   padding-right: 0.5rem;
   pointer-events: none;
-}
-
-.arrow-icon {
-  width: 1rem;
-  height: 1rem;
   color: #9ca3af;
 }
 
@@ -187,75 +159,7 @@ const cancelGameChange = () => {
   flex: 1;
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-  /* Add safe area padding for mobile */
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-}
 
-.confirmation-modal {
-  background-color: #2d2d2d;
-  border: 1px solid #404040;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  max-width: 28rem;
-  margin: 1rem;
-}
-
-.modal-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #f3f4f6;
-  margin-bottom: 0.75rem;
-}
-
-.modal-text {
-  color: #9ca3af;
-  margin-bottom: 1rem;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-}
-
-.modal-button {
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 200ms;
-}
-
-.modal-button.secondary {
-  background-color: #2d2d2d;
-  color: #f3f4f6;
-  border: 1px solid #404040;
-}
-
-.modal-button.secondary:hover {
-  background-color: #4b5563;
-}
-
-.modal-button.primary {
-  background-color: #2563eb;
-  color: white;
-  border: none;
-}
-
-.modal-button.primary:hover {
-  background-color: #1d4ed8;
-}
 
 @media (min-width: 640px) {
   .game-selector-row {
@@ -285,29 +189,15 @@ const cancelGameChange = () => {
     padding-left: max(0.75rem, env(safe-area-inset-left) + 0.75rem);
     padding-right: max(0.75rem, env(safe-area-inset-right) + 0.75rem);
   }
-  
+
   .game-input-section {
     gap: 0.5rem;
   }
-  
+
   .game-select {
     padding: 0.5rem 1.75rem 0.5rem 0.625rem;
-    font-size: 16px; /* Ensure no zoom on mobile */
-  }
-  
-  .confirmation-modal {
-    margin: 0.75rem;
-    padding: 1.25rem;
-  }
-  
-  .modal-actions {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  
-  .modal-button {
-    width: 100%;
-    justify-content: center;
+    font-size: 16px;
+    /* Ensure no zoom on mobile */
   }
 }
 </style>
