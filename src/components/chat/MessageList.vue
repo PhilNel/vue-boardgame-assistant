@@ -51,8 +51,25 @@ const handleRetryMessage = () => {
 
 const scrollToBottom = () => {
   if (messagesContainer.value) {
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    const container = messagesContainer.value
+    // Calculate precise scroll position to avoid over-scrolling
+    const maxScroll = container.scrollHeight - container.clientHeight
+    container.scrollTop = Math.max(0, maxScroll)
   }
+}
+
+const scrollDownSlightly = () => {
+  if (messagesContainer.value) {
+    const container = messagesContainer.value
+    container.scrollTop += 256
+  }
+}
+
+const isNearBottom = () => {
+  if (!messagesContainer.value) return true
+  const container = messagesContainer.value
+  const threshold = 100 // pixels from bottom
+  return container.scrollTop + container.clientHeight >= container.scrollHeight - threshold
 }
 
 const checkScrollbar = () => {
@@ -62,10 +79,23 @@ const checkScrollbar = () => {
   }
 }
 
-// Auto-scroll to bottom when new messages arrive
-watch(() => props.messages, async () => {
-  await nextTick()
-  scrollToBottom()
+// Auto-scroll to bottom when new messages arrive - smart behavior
+watch(() => props.messages, async (newMessages) => {
+  await nextTick();
+  if (newMessages.length === 0) return
+
+  const lastMessage = newMessages[newMessages.length - 1]
+  if (lastMessage.role === 'user') {
+    scrollToBottom()
+  }
+  else if (lastMessage.role === 'assistant') {
+    if (isNearBottom()) {
+      scrollToBottom()
+    } else {
+      scrollDownSlightly()
+    }
+  }
+
   checkScrollbar()
 }, { deep: true })
 
@@ -75,10 +105,6 @@ onMounted(async () => {
   checkScrollbar()
 })
 
-// Expose scroll method for parent components
-defineExpose({
-  scrollToBottom
-})
 </script>
 
 <style scoped>
