@@ -8,7 +8,7 @@ export function useGame() {
 
   const changeGame = (gameId: string) => {
     gameStore.selectGame(gameId);
-    chatStore.initializeSession();
+    chatStore.initializeForGame(gameId);
     chatStore.clearError();
   };
 

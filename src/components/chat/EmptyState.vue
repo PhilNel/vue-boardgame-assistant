@@ -4,11 +4,12 @@
             <Avatar class="avatar" />
         </div>
         <h3 class="title">
-            Welcome to Boardgame Warlock
+            Greetings, fellow gamer!
         </h3>
         <p class="subtitle">
-            Ready to conjure up some game rule magic? Ask me anything!
+            I'm Ernest, keeper of Boardgame Warlock's ancient knowledge.
         </p>
+        <p class="subtitle">Ready to cast some clarity on those tricky rules?</p>
     </div>
 </template>
 

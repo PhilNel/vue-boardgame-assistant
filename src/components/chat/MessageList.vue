@@ -1,6 +1,6 @@
 <template>
   <div class="message-list-container">
-    <div ref="messagesContainer" class="messages-scroll">
+    <div ref="messagesContainer" class="messages-scroll" :class="{ 'show-scrollbar': showScrollbar }">
       <div class="messages-content">
         <TransitionGroup name="message" tag="div">
           <div v-for="message in messages" :key="message.id" class="message-wrapper">
@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue'
+import { ref, nextTick, onMounted, watch } from 'vue'
 import type { ChatMessage } from '@/types/chat'
 import UserMessage from '@/components/chat/UserMessage.vue'
 import AssistantMessage from '@/components/chat/AssistantMessage.vue'
@@ -39,6 +39,7 @@ const emit = defineEmits<{
 }>()
 
 const messagesContainer = ref<HTMLElement>()
+const showScrollbar = ref(false)
 
 const handleCopyMessage = (messageId: string) => {
   emit('copy-message', messageId)
@@ -50,20 +51,60 @@ const handleRetryMessage = () => {
 
 const scrollToBottom = () => {
   if (messagesContainer.value) {
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    const container = messagesContainer.value
+    // Calculate precise scroll position to avoid over-scrolling
+    const maxScroll = container.scrollHeight - container.clientHeight
+    container.scrollTop = Math.max(0, maxScroll)
   }
 }
 
-// Auto-scroll to bottom when new messages arrive
-watch(() => props.messages, async () => {
-  await nextTick()
-  scrollToBottom()
+const scrollDownSlightly = () => {
+  if (messagesContainer.value) {
+    const container = messagesContainer.value
+    container.scrollTop += 256
+  }
+}
+
+const isNearBottom = () => {
+  if (!messagesContainer.value) return true
+  const container = messagesContainer.value
+  const threshold = 100 // pixels from bottom
+  return container.scrollTop + container.clientHeight >= container.scrollHeight - threshold
+}
+
+const checkScrollbar = () => {
+  if (messagesContainer.value) {
+    const { scrollHeight, clientHeight } = messagesContainer.value
+    showScrollbar.value = scrollHeight > clientHeight
+  }
+}
+
+// Auto-scroll to bottom when new messages arrive - smart behavior
+watch(() => props.messages, async (newMessages) => {
+  await nextTick();
+  if (newMessages.length === 0) return
+
+  const lastMessage = newMessages[newMessages.length - 1]
+  if (lastMessage.role === 'user') {
+    scrollToBottom()
+  }
+  else if (lastMessage.role === 'assistant') {
+    if (isNearBottom()) {
+      scrollToBottom()
+    } else {
+      scrollDownSlightly()
+    }
+  }
+
+  checkScrollbar()
 }, { deep: true })
 
-// Expose scroll method for parent components
-defineExpose({
-  scrollToBottom
+onMounted(async () => {
+  await nextTick()
+  scrollToBottom()
+  checkScrollbar()
 })
+
 </script>
 
 <style scoped>
@@ -76,11 +117,47 @@ defineExpose({
 
 .messages-scroll {
   height: 100%;
-  overflow-y: auto;
+  overflow-y: hidden;
+  overflow-x: hidden;
   padding: 1rem 0.5rem 1.5rem;
   /* Improve mobile scrolling */
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+}
+
+/* Only show scrollbar when content overflows */
+.messages-scroll.show-scrollbar {
+  overflow-y: auto;
+  /* Better scrollbar behavior */
+  scrollbar-width: thin;
+  scrollbar-color: #4b5563 transparent;
+}
+
+/* Custom scrollbar for webkit browsers - only when scrollbar is shown */
+.messages-scroll.show-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages-scroll.show-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messages-scroll.show-scrollbar::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 3px;
+  /* Make scrollbar more subtle */
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.messages-scroll.show-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+  opacity: 1;
+}
+
+/* Show scrollbar on hover/scroll */
+.messages-scroll.show-scrollbar:not(:hover)::-webkit-scrollbar-thumb {
+  opacity: 0.3;
 }
 
 .messages-content {
@@ -119,24 +196,6 @@ defineExpose({
   transform: translateY(-10px);
 }
 
-/* Custom scrollbar */
-.messages-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-
-.messages-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.messages-scroll::-webkit-scrollbar-thumb {
-  background: #4b5563;
-  border-radius: 3px;
-}
-
-.messages-scroll::-webkit-scrollbar-thumb:hover {
-  background: #6b7280;
-}
-
 @media (min-width: 640px) {
   .messages-scroll {
     padding: 1.5rem 1rem;
@@ -155,19 +214,19 @@ defineExpose({
   .messages-scroll {
     padding: 0.75rem 0.5rem 1rem;
   }
-  
+
   .messages-content {
     gap: 0.5rem;
     padding: 0 0.75rem;
     padding-left: max(0.75rem, env(safe-area-inset-left) + 0.75rem);
     padding-right: max(0.75rem, env(safe-area-inset-right) + 0.75rem);
   }
-  
+
   /* Hide scrollbar on mobile for cleaner look */
   .messages-scroll::-webkit-scrollbar {
     display: none;
   }
-  
+
   .messages-scroll {
     -ms-overflow-style: none;
     scrollbar-width: none;

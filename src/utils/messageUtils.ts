@@ -37,6 +37,23 @@ export const createErrorMessage = (
   error: errorCode,
 });
 
+export const applySlidingWindow = (
+  messages: ChatMessage[],
+  maxMessages: number
+): ChatMessage[] => {
+  if (messages.length <= maxMessages) {
+    return messages;
+  }
+
+  const messagesToRemove = messages.length - maxMessages;
+  const removeCount =
+    messagesToRemove % 2 === 0 ? messagesToRemove : messagesToRemove + 1;
+
+  const result = [...messages];
+  result.splice(0, removeCount);
+  return result;
+};
+
 export const getErrorMessage = (error: any): string => {
   if (error?.code === "RATE_LIMITED") {
     return "⏳ The AI service is temporarily overloaded. Please wait 30-60 seconds before trying again. You can also try asking a more specific question to reduce processing time.";

@@ -8,13 +8,6 @@ import {
   CONNECTION_ERROR_MESSAGE,
 } from "./messageUtils";
 
-export const scrollToBottom = () => {
-  const chatContainer = document.querySelector(".chat-messages");
-  if (chatContainer) {
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-  }
-};
-
 export const handleApiResponse = async (
   response: any,
   loadingMessage: ChatMessage,

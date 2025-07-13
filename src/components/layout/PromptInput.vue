@@ -5,7 +5,6 @@
                 <PromptTextInput ref="promptInputRef" v-model="message" :disabled="!canSend" @send="handleSend" />
                 <SendButton :disabled="!canSend || !message.trim()" :is-loading="isLoading" @click="handleSend" />
             </div>
-            <InputHint />
         </div>
     </div>
 </template>
@@ -14,7 +13,6 @@
 import { ref } from 'vue'
 import PromptTextInput from '@/components/prompt/PromptTextInput.vue'
 import SendButton from '@/components/prompt/SendButton.vue'
-import InputHint from '@/components/prompt/InputHint.vue'
 
 interface Props {
     canSend: boolean
@@ -65,7 +63,8 @@ defineExpose({
     width: 100%;
     max-width: 56rem;
     margin: 0 auto;
-    padding: 0.75rem;
+    padding: 0.5rem;
+    padding-bottom: 0.75rem;
     /* Ensure minimum padding on mobile */
     padding-left: max(0.75rem, env(safe-area-inset-left) + 0.75rem);
     padding-right: max(0.75rem, env(safe-area-inset-right) + 0.75rem);

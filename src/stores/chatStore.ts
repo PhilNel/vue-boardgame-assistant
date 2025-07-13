@@ -1,13 +1,11 @@
 import { defineStore } from "pinia";
-import { v4 as uuidv4 } from "uuid";
-import type { ChatMessage, ChatSession } from "@/types/chat";
-import { useGameStore } from "./gameStore";
-import { createAssistantMessage } from "@/utils/messageUtils";
+import type { ChatMessage } from "@/types/chat";
+import { useChatHistoryStore } from "./chatHistoryStore";
 
 export const useChatStore = defineStore("chat", {
   state: () => ({
-    sessions: new Map<string, ChatSession>(),
-    currentSessionId: null as string | null,
+    messages: [] as ChatMessage[],
+    currentGame: null as string | null,
     isLoading: false,
     error: null as string | null,
     isSending: false,
@@ -15,100 +13,75 @@ export const useChatStore = defineStore("chat", {
   }),
 
   getters: {
-    currentSession: (state) =>
-      state.currentSessionId
-        ? state.sessions.get(state.currentSessionId)
-        : null,
-
-    messages: (state) => {
-      const session = state.currentSessionId
-        ? state.sessions.get(state.currentSessionId)
-        : null;
-      return session?.messages || [];
-    },
-
     canSendMessage: (state) => !state.isSending,
   },
 
   actions: {
-    createSession(gameId: string): ChatSession {
-      const gameStore = useGameStore();
-      const game = gameStore.availableGames.find((g) => g.id === gameId);
+    initializeForGame(gameId: string) {
+      if (this.currentGame !== gameId) {
+        this.currentGame = gameId;
 
-      const session: ChatSession = {
-        id: uuidv4(),
-        game: gameId,
-        messages: [],
-        createdAt: new Date(),
-      };
+        const historyStore = useChatHistoryStore();
+        historyStore.loadHistory(gameId);
 
-      const welcomeMessage = createAssistantMessage(
-        `Welcome to Boardgame Warlock! \nI'm Ernest, your magical assistant for ${
-          game?.name || "board game"
-        } rules. \nHow can I help you today?`
-      );
-
-      session.messages.push(welcomeMessage);
-      this.sessions.set(session.id, session);
-
-      return session;
-    },
-
-    initializeSession() {
-      const gameStore = useGameStore();
-      const currentGame = gameStore.selectedGameId;
-
-      const hasCurrentSessionId = !!this.currentSessionId
-      const sessionExists = hasCurrentSessionId && this.sessions.has(this.currentSessionId!)
-      const sessionMatchesSelectedGame = sessionExists && this.sessions.get(this.currentSessionId!)?.game === currentGame
-
-      if (!sessionExists || !sessionMatchesSelectedGame) {
-        const newSession = this.createSession(currentGame);
-        this.currentSessionId = newSession.id;
+        if (historyStore.history.length > 0) {
+          this.messages = [...historyStore.history];
+        } else {
+          this.messages = [];
+        }
       }
     },
 
     addMessage(message: ChatMessage) {
-      if (!this.currentSessionId) return;
+      this.messages.push(message);
 
-      const session = this.sessions.get(this.currentSessionId);
-      if (session) {
-        session.messages.push(message);
+      if (this.currentGame) {
+        const historyStore = useChatHistoryStore();
+        historyStore.saveMessage(this.currentGame, message);
       }
     },
 
     removeMessage(messageId: string) {
-      if (!this.currentSessionId) return;
-
-      const session = this.sessions.get(this.currentSessionId);
-      if (session) {
-        const index = session.messages.findIndex((m) => m.id === messageId);
-        if (index !== -1) {
-          session.messages.splice(index, 1);
-        }
+      const index = this.messages.findIndex((m) => m.id === messageId);
+      if (index !== -1) {
+        this.messages.splice(index, 1);
       }
     },
 
     updateMessage(messageId: string, updates: Partial<ChatMessage>) {
-      if (!this.currentSessionId) return;
-
-      const session = this.sessions.get(this.currentSessionId);
-      if (session) {
-        const message = session.messages.find((m) => m.id === messageId);
-        if (message) {
-          Object.assign(message, updates);
-        }
+      const message = this.messages.find((m) => m.id === messageId);
+      if (message) {
+        Object.assign(message, updates);
       }
     },
 
-    clearCurrentSession() {
-      const gameStore = useGameStore();
-      if (this.currentSessionId) {
-        this.sessions.delete(this.currentSessionId);
+    clearMessages() {
+      if (this.currentGame) {
+        const historyStore = useChatHistoryStore();
+        historyStore.clearHistory(this.currentGame);
       }
-      const newSession = this.createSession(gameStore.selectedGameId);
-      this.currentSessionId = newSession.id;
+
+      this.messages = [];
       this.clearError();
+    },
+
+    startNewConversation() {
+      this.clearMessages();
+    },
+
+    removeMessagesAfterUserMessage(userMessageId: string) {
+      const userMessageIndex = this.messages.findIndex(
+        (m) => m.id === userMessageId
+      );
+      if (userMessageIndex !== -1) {
+        this.messages = this.messages.slice(0, userMessageIndex + 1);
+      }
+    },
+
+    getLastUserMessage(): ChatMessage | null {
+      return (
+        [...this.messages].reverse().find((m) => m.role === "user") || null
+      );
     },
 
     setLoading(loading: boolean) {
@@ -123,32 +96,6 @@ export const useChatStore = defineStore("chat", {
     clearError() {
       this.error = null;
       this.hasError = false;
-    },
-
-    // Remove messages after a specific user message (for retry functionality)
-    removeMessagesAfterUserMessage(userMessageId: string) {
-      if (!this.currentSessionId) return;
-
-      const session = this.sessions.get(this.currentSessionId);
-      if (session) {
-        const userMessageIndex = session.messages.findIndex(
-          (m) => m.id === userMessageId
-        );
-        if (userMessageIndex !== -1) {
-          session.messages = session.messages.slice(0, userMessageIndex + 1);
-        }
-      }
-    },
-
-    getLastUserMessage(): ChatMessage | null {
-      if (!this.currentSessionId) return null;
-
-      const session = this.sessions.get(this.currentSessionId);
-      if (!session) return null;
-
-      return (
-        [...session.messages].reverse().find((m) => m.role === "user") || null
-      );
     },
   },
 });
