@@ -6,3 +6,5 @@ export { default as EyeIcon } from "./EyeIcon.vue";
 export { default as EyeOffIcon } from "./EyeOffIcon.vue";
 export { default as SendIcon } from "./SendIcon.vue";
 export { default as SettingsIcon } from "./SettingsIcon.vue";
+export { default as ThumbsUpIcon } from "./ThumbsUpIcon.vue";
+export { default as ThumbsDownIcon } from "./ThumbsDownIcon.vue";

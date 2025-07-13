@@ -6,18 +6,12 @@
           <label for="game-select" class="game-label">
             Game:
           </label>
-          <div class="select-wrapper">
-            <select id="game-select" :value="selectedGame" @change="handleGameChange" class="game-select">
-              <option v-for="game in availableGames" :key="game.id" :value="game.id" :disabled="!game.isAvailable">
-                {{ game.name }}
-                <span v-if="!game.isAvailable"> (Coming Soon)</span>
-              </option>
-            </select>
-
-            <div class="select-arrow">
-              <ChevronDownIcon />
-            </div>
-          </div>
+          <Select id="game-select" :model-value="selectedGame" @update:model-value="handleGameChange">
+            <option v-for="game in availableGames" :key="game.id" :value="game.id" :disabled="!game.isAvailable">
+              {{ game.name }}
+              <span v-if="!game.isAvailable"> (Coming Soon)</span>
+            </option>
+          </Select>
         </div>
       </div>
     </div>
@@ -29,7 +23,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { GameInfo } from '@/types/chat'
-import ChevronDownIcon from '@/components/ui/icons/ChevronDownIcon.vue'
+import Select from '@/components/ui/Select.vue'
 import GameChangeConfirmationModal from './GameChangeConfirmationModal.vue'
 
 interface Props {
@@ -49,10 +43,7 @@ const emit = defineEmits<Emits>()
 const showConfirmation = ref(false)
 const pendingGameId = ref<string>('')
 
-const handleGameChange = (event: Event) => {
-  const target = event.target as HTMLSelectElement
-  const newGameId = target.value
-
+const handleGameChange = (newGameId: string) => {
   if (newGameId === props.selectedGame) return
 
   // If there are messages, show confirmation
@@ -116,42 +107,7 @@ const cancelGameChange = () => {
   flex-shrink: 0;
 }
 
-.select-wrapper {
-  position: relative;
-  flex: 1;
-}
 
-.game-select {
-  background-color: #374151;
-  border: 1px solid #404040;
-  border-radius: 0.5rem;
-  padding: 0.5rem 2rem 0.5rem 0.75rem;
-  color: #f3f4f6;
-  width: 100%;
-  appearance: none;
-  cursor: pointer;
-  /* Prevent mobile zoom on focus */
-  font-size: 16px;
-  -webkit-appearance: none;
-}
-
-.game-select:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px #2563eb;
-  border-color: transparent;
-}
-
-.select-arrow {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  padding-right: 0.5rem;
-  pointer-events: none;
-  color: #9ca3af;
-}
 
 .game-description {
   color: #9ca3af;
@@ -172,11 +128,6 @@ const cancelGameChange = () => {
     flex: none;
   }
 
-  .select-wrapper {
-    flex: none;
-    width: 8rem;
-  }
-
   .game-description {
     font-size: 0.875rem;
   }
@@ -194,10 +145,5 @@ const cancelGameChange = () => {
     gap: 0.5rem;
   }
 
-  .game-select {
-    padding: 0.5rem 1.75rem 0.5rem 0.625rem;
-    font-size: 16px;
-    /* Ensure no zoom on mobile */
-  }
 }
 </style>

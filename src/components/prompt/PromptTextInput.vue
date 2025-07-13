@@ -1,6 +1,6 @@
 <template>
     <div class="prompt-input-container">
-        <textarea ref="textareaRef" v-model="message" :disabled="disabled" placeholder="Ask Ernest anything..."
+        <textarea id="prompt-input" ref="textareaRef" v-model="message" :disabled="disabled" placeholder="Ask Ernest anything..."
             class="prompt-input" rows="1" @keydown="handleKeydown" />
     </div>
 </template>

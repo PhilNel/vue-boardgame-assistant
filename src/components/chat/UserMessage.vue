@@ -3,13 +3,7 @@
         <div class="message-bubble">
             <div class="message-content">{{ message.content }}</div>
             <div class="message-footer">
-                <div class="timestamp">
-                    {{ formatTime(message.timestamp) }}
-                </div>
-
-                <button @click="handleCopy" class="copy-button" title="Copy message">
-                    <CopyIcon />
-                </button>
+                <CopyButton variant="user" @copy="handleCopy" />
             </div>
         </div>
     </div>
@@ -17,7 +11,7 @@
 
 <script setup lang="ts">
 import type { ChatMessage } from '@/types/chat'
-import { CopyIcon } from '@/components/ui/icons'
+import CopyButton from '@/components/ui/CopyButton.vue'
 
 interface Props {
     message: ChatMessage
@@ -26,14 +20,6 @@ interface Props {
 const props = defineProps<Props>()
 
 const emit = defineEmits<{ 'copy-message': [messageId: string] }>()
-
-const formatTime = (timestamp: Date): string => {
-    return new Intl.DateTimeFormat('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-    }).format(timestamp)
-}
 
 const handleCopy = () => {
     emit('copy-message', props.message.id)
@@ -68,26 +54,4 @@ const handleCopy = () => {
     gap: 0.5rem;
     margin-top: 0.75rem;
 }
-
-.timestamp {
-    font-size: 0.75rem;
-    opacity: 0.7;
-}
-
-.copy-button {
-    opacity: 0.6;
-    transition: opacity 200ms;
-    padding: 0.25rem;
-    border-radius: 0.25rem;
-    background: none;
-    border: none;
-    color: inherit;
-    cursor: pointer;
-}
-
-.copy-button:hover {
-    opacity: 1;
-    background-color: rgba(255, 255, 255, 0.2);
-}
-
 </style>
