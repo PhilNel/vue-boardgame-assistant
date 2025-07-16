@@ -22,11 +22,8 @@ export class FeedbackService {
       return validationError;
     }
 
-    // Set API key if available
     const apiKey = getApiKey();
     if (apiKey) {
-      this.httpClient.setHeader("x-api-key", apiKey);
-
       // Generate user hash from API key for anonymous identification
       submission.user_hash = await this.generateUserHash(apiKey);
     }

@@ -5,7 +5,10 @@ export interface ChatMessage {
   timestamp: Date
   isLoading?: boolean
   error?: string
-  token_count?: number // For future use with token counting
+  user_feedback?: {
+    type: 'positive' | 'negative'
+    submitted_at: string
+  }
 }
 
 export interface ChatSession {

@@ -26,6 +26,10 @@ import type { FeedbackIssue, FeedbackType } from '@/types/feedback'
 interface Props {
     messageId: string
     disabled?: boolean
+    existingFeedback?: {
+        type: 'positive' | 'negative'
+        submitted_at: string
+    }
 }
 
 interface Emits {
@@ -40,7 +44,7 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const feedbackState = ref<FeedbackType | null>(null)
+const feedbackState = ref<FeedbackType | null>(props.existingFeedback?.type || null)
 const showModal = ref(false)
 const currentFeedbackType = ref<FeedbackType>('positive')
 

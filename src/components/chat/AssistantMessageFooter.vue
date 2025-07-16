@@ -1,7 +1,7 @@
 <template>
     <div class="message-footer">
         <div class="footer-actions">
-            <FeedbackButtons :message-id="messageId" @feedback="handleFeedback" />
+            <FeedbackButtons :message-id="messageId" :existing-feedback="existingFeedback" @feedback="handleFeedback" />
             <CopyButton @copy="handleCopy" />
         </div>
     </div>
@@ -15,6 +15,10 @@ import type { FeedbackIssue, FeedbackType } from '@/types/feedback'
 interface Props {
     messageId: string
     timestamp: Date
+    existingFeedback?: {
+        type: 'positive' | 'negative'
+        submitted_at: string
+    }
 }
 
 interface Emits {

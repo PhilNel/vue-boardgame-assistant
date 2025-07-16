@@ -73,6 +73,14 @@ export function useChat() {
 
       if (response.success) {
         console.log("✅ Feedback submitted successfully");
+        
+        chatStore.updateMessage(data.messageId, {
+          user_feedback: {
+            type: data.feedbackType,
+            submitted_at: new Date().toISOString()
+          }
+        });
+        
         return true;
       } else {
         console.error("❌ Failed to submit feedback:", response.error);

@@ -19,7 +19,7 @@
       <!-- Normal Message -->
       <div v-else class="formatted-content" v-html="formatMessageContent(message.content)"></div>
 
-      <AssistantMessageFooter :message-id="message.id" :timestamp="message.timestamp" @copy="handleCopy"
+      <AssistantMessageFooter :message-id="message.id" :timestamp="message.timestamp" :existing-feedback="message.user_feedback" @copy="handleCopy"
         @feedback="handleFeedback" />
     </div>
   </div>
