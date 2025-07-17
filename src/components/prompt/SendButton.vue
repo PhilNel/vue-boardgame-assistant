@@ -68,4 +68,12 @@ const handleClick = () => {
     transform: rotate(360deg);
   }
 }
+
+/* Mobile-specific adjustments */
+@media (max-width: 640px) {
+    .send-button {
+        width: 48px;
+        height: 48px;
+    }
+}
 </style>

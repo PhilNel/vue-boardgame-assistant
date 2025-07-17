@@ -10,11 +10,11 @@
       @retry-message="handleRetryMessage" @feedback="handleFeedback" />
 
     <PromptInput ref="messageInputRef" :can-send="canSendMessage" :is-loading="isLoading"
-      @send-message="handleSendMessage" />
+      @send-message="handleSendMessage" @voice-error="handleVoiceError" />
 
     <SettingsModal />
 
-    <Toast :show="showToast" :message="toastMessage" />
+    <Toast :show="showToast" :message="toastMessage" :variant="toastVariant" />
   </div>
 </template>
 
@@ -56,6 +56,7 @@ const messageInputRef = ref()
 
 const showToast = ref(false)
 const toastMessage = ref('')
+const toastVariant = ref<'success' | 'error'>('success')
 
 const handleSendMessage = async (message: string) => {
   await sendMessage(message)
@@ -75,6 +76,7 @@ const handleCopyMessage = async (messageId: string) => {
   if (success) {
     showToast.value = true
     toastMessage.value = 'Message copied to clipboard'
+    toastVariant.value = 'success'
     setTimeout(() => {
       showToast.value = false
     }, 2000)
@@ -95,6 +97,7 @@ const handleFeedback = async (data: {
   if (success) {
     showToast.value = true
     toastMessage.value = 'Thank you for your feedback!'
+    toastVariant.value = 'success'
     setTimeout(() => {
       showToast.value = false
     }, 2000)
@@ -103,6 +106,15 @@ const handleFeedback = async (data: {
 
 const handleOpenSettings = () => {
   settingsStore.openModal()
+}
+
+const handleVoiceError = (error: { type: string, message: string }) => {
+  showToast.value = true
+  toastMessage.value = error.message
+  toastVariant.value = 'error'
+  setTimeout(() => {
+    showToast.value = false
+  }, 5000)
 }
 
 onMounted(() => {

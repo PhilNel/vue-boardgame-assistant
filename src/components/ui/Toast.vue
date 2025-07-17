@@ -1,7 +1,7 @@
 <template>
     <Transition name="toast">
         <div v-if="show" class="toast">
-            <div class="toast-content">
+            <div class="toast-content" :class="variantClass">
                 <span class="toast-message">{{ message }}</span>
             </div>
         </div>
@@ -9,12 +9,19 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 interface Props {
     show: boolean
     message: string
+    variant?: 'success' | 'error'
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+const variantClass = computed(() => {
+    return props.variant === 'error' ? 'toast-error' : 'toast-success'
+})
 </script>
 
 <style scoped>
@@ -28,15 +35,24 @@ defineProps<Props>()
 }
 
 .toast-content {
-    background-color: #065f46;
-    color: #10b981;
-    border: 1px solid #059669;
     border-radius: 0.5rem;
     padding: 0.75rem 1rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     font-size: 0.875rem;
     font-weight: 500;
     white-space: nowrap;
+}
+
+.toast-success {
+    background-color: #065f46;
+    color: #10b981;
+    border: 1px solid #059669;
+}
+
+.toast-error {
+    background-color: #7f1d1d;
+    color: #f87171;
+    border: 1px solid #dc2626;
 }
 
 .toast-message {
