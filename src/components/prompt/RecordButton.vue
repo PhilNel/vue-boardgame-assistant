@@ -82,6 +82,17 @@ const handleClick = async () => {
     flex-shrink: 0;
     outline: none;
     transition: background-color 100ms, transform 100ms;
+    /* Prevent mobile text selection and touch callouts */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.record-button:focus:not(:focus-visible) {
+    box-shadow: none;
 }
 
 .record-button:hover:not(.disabled):not(.recording):not(.processing) {
