@@ -81,13 +81,18 @@ const variantClass = computed(() => {
 @media (max-width: 640px) {
     .toast {
         top: 4rem;
-        left: 1rem;
-        right: 1rem;
+        left: max(1rem, env(safe-area-inset-left) + 1rem);
+        right: max(1rem, env(safe-area-inset-right) + 1rem);
         transform: none;
+        max-width: calc(100vw - 2rem);
     }
 
     .toast-content {
         text-align: center;
+        white-space: normal;
+        word-wrap: break-word;
+        max-width: 100%;
+        line-height: 1.4;
     }
 }
 </style>
