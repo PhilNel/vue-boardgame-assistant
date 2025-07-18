@@ -7,7 +7,7 @@
             <UserMessage v-if="message.role === 'user'" :message="message" @copy-message="handleCopyMessage" />
 
             <AssistantMessage v-else-if="message.role === 'assistant'" :message="message"
-              @copy-message="handleCopyMessage" @retry-message="handleRetryMessage" />
+              @copy-message="handleCopyMessage" @retry-message="handleRetryMessage" @feedback="handleFeedback" />
 
             <SystemMessage v-else-if="message.role === 'system'" :message="message" />
           </div>
@@ -22,6 +22,7 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted, watch } from 'vue'
 import type { ChatMessage } from '@/types/chat'
+import type { FeedbackIssue, FeedbackType } from '@/types/feedback'
 import UserMessage from '@/components/chat/UserMessage.vue'
 import AssistantMessage from '@/components/chat/AssistantMessage.vue'
 import SystemMessage from '@/components/chat/SystemMessage.vue'
@@ -36,6 +37,12 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   'copy-message': [messageId: string]
   'retry-message': []
+  'feedback': [data: {
+    messageId: string
+    feedbackType: FeedbackType
+    issues?: FeedbackIssue[]
+    description?: string
+  }]
 }>()
 
 const messagesContainer = ref<HTMLElement>()
@@ -47,6 +54,15 @@ const handleCopyMessage = (messageId: string) => {
 
 const handleRetryMessage = () => {
   emit('retry-message')
+}
+
+const handleFeedback = (data: {
+  messageId: string
+  feedbackType: FeedbackType
+  issues?: FeedbackIssue[]
+  description?: string
+}) => {
+  emit('feedback', data)
 }
 
 const scrollToBottom = () => {

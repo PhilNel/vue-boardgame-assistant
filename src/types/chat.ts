@@ -1,11 +1,20 @@
+export enum MessageRole {
+  USER = 'user',
+  ASSISTANT = 'assistant',
+  SYSTEM = 'system'
+}
+
 export interface ChatMessage {
   id: string
   content: string
-  role: 'user' | 'assistant' | 'system'
+  role: MessageRole
   timestamp: Date
   isLoading?: boolean
   error?: string
-  token_count?: number // For future use with token counting
+  user_feedback?: {
+    type: 'positive' | 'negative'
+    submitted_at: string
+  }
 }
 
 export interface ChatSession {
@@ -63,10 +72,8 @@ export interface ChatState {
   error: string | null
 }
 
-export type MessageRole = ChatMessage['role']
-
 export interface LoadingState {
   isTyping: boolean
   isSending: boolean
   hasError: boolean
-} 
+}

@@ -7,9 +7,10 @@ import {
   handleApiError,
   sendChatMessage,
 } from "@/utils/chatUtils";
+import { feedbackService } from "@/services";
+import type { FeedbackIssue, FeedbackType } from "@/types/feedback";
 
 export function useChat() {
-  
   const chatStore = useChatStore();
   const gameStore = useGameStore();
   chatStore.initializeForGame(gameStore.selectedGameId);
@@ -52,6 +53,76 @@ export function useChat() {
     }
   };
 
+  const submitFeedback = async (data: {
+    messageId: string;
+    feedbackType: FeedbackType;
+    issues?: FeedbackIssue[];
+    description?: string;
+  }) => {
+    try {
+      const conversationContext = getConversationContext();
+
+      const response = await feedbackService.submitFeedback({
+        message_id: data.messageId,
+        game_name: gameStore.selectedGameId,
+        feedback_type: data.feedbackType,
+        issues: data.issues,
+        description: data.description,
+        conversation_context: conversationContext,
+      });
+
+      if (response.success) {
+        console.log("✅ Feedback submitted successfully");
+        
+        chatStore.updateMessage(data.messageId, {
+          user_feedback: {
+            type: data.feedbackType,
+            submitted_at: new Date().toISOString()
+          }
+        });
+        
+        return true;
+      } else {
+        console.error("❌ Failed to submit feedback:", response.error);
+        return false;
+      }
+    } catch (error) {
+      console.error("❌ Error submitting feedback:", error);
+      return false;
+    }
+  };
+
+  const getConversationContext = () => {
+    const recentMessages = chatStore.messages
+      .filter((m) => m.role === "user" || m.role === "assistant")
+      .slice(-6) // Last 6 messages (3 Q&A pairs)
+      .reduce(
+        (
+          pairs: Array<{ question: string; answer: string; timestamp: string }>,
+          message,
+          index,
+          array
+        ) => {
+          if (
+            message.role === "user" &&
+            index + 1 < array.length &&
+            array[index + 1].role === "assistant"
+          ) {
+            pairs.push({
+              question: message.content,
+              answer: array[index + 1].content,
+              timestamp: message.timestamp.toISOString(),
+            });
+          }
+          return pairs;
+        },
+        []
+      );
+
+    return {
+      recent_qa: recentMessages.slice(-3), // Last 3 Q&A pairs
+    };
+  };
 
   const sendMessageWithLoading = async (content: string) => {
     const loadingMessage = createLoadingMessage();
@@ -88,5 +159,6 @@ export function useChat() {
     startNewConversation,
     retryLastMessage,
     copyMessage,
+    submitFeedback,
   };
 }

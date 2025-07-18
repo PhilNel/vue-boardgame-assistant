@@ -52,6 +52,11 @@ export const useChatStore = defineStore("chat", {
       const message = this.messages.find((m) => m.id === messageId);
       if (message) {
         Object.assign(message, updates);
+        
+        if (this.currentGame) {
+          const historyStore = useChatHistoryStore();
+          historyStore.saveMessage(this.currentGame, message);
+        }
       }
     },
 

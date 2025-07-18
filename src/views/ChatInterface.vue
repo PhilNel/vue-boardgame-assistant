@@ -7,12 +7,14 @@
       :has-messages="messages.length > 1" @change-game="handleGameChange" />
 
     <MessageList ref="messageListRef" :messages="messages" @copy-message="handleCopyMessage"
-      @retry-message="handleRetryMessage" />
+      @retry-message="handleRetryMessage" @feedback="handleFeedback" />
 
     <PromptInput ref="messageInputRef" :can-send="canSendMessage" :is-loading="isLoading"
-      @send-message="handleSendMessage" />
+      @send-message="handleSendMessage" @voice-error="handleVoiceError" />
 
     <SettingsModal />
+
+    <Toast :show="showToast" :message="toastMessage" :variant="toastVariant" />
   </div>
 </template>
 
@@ -21,11 +23,13 @@ import { ref, onMounted } from 'vue'
 import { useChat } from '@/composables/useChat'
 import { useGame } from '@/composables/useGame'
 import { useSettingsStore } from '@/stores/settings'
+import type { FeedbackIssue, FeedbackType } from '@/types/feedback'
 import GameSelector from '@/components/game/GameSelector.vue'
 import MessageList from '@/components/chat/MessageList.vue'
 import PromptInput from '@/components/layout/PromptInput.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import SettingsModal from '@/components/settings/SettingsModal.vue'
+import Toast from '@/components/ui/Toast.vue'
 
 const {
   messages,
@@ -35,6 +39,7 @@ const {
   clearChat,
   retryLastMessage,
   copyMessage,
+  submitFeedback,
 } = useChat()
 
 const {
@@ -51,6 +56,7 @@ const messageInputRef = ref()
 
 const showToast = ref(false)
 const toastMessage = ref('')
+const toastVariant = ref<'success' | 'error'>('success')
 
 const handleSendMessage = async (message: string) => {
   await sendMessage(message)
@@ -70,6 +76,7 @@ const handleCopyMessage = async (messageId: string) => {
   if (success) {
     showToast.value = true
     toastMessage.value = 'Message copied to clipboard'
+    toastVariant.value = 'success'
     setTimeout(() => {
       showToast.value = false
     }, 2000)
@@ -80,8 +87,34 @@ const handleRetryMessage = async () => {
   await retryLastMessage()
 }
 
+const handleFeedback = async (data: {
+  messageId: string
+  feedbackType: FeedbackType
+  issues?: FeedbackIssue[]
+  description?: string
+}) => {
+  const success = await submitFeedback(data)
+  if (success) {
+    showToast.value = true
+    toastMessage.value = 'Thank you for your feedback!'
+    toastVariant.value = 'success'
+    setTimeout(() => {
+      showToast.value = false
+    }, 2000)
+  }
+}
+
 const handleOpenSettings = () => {
   settingsStore.openModal()
+}
+
+const handleVoiceError = (error: { type: string, message: string }) => {
+  showToast.value = true
+  toastMessage.value = error.message
+  toastVariant.value = 'error'
+  setTimeout(() => {
+    showToast.value = false
+  }, 5000)
 }
 
 onMounted(() => {
@@ -94,7 +127,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  height: 100dvh; /* Dynamic viewport height for mobile */
+  height: 100dvh;
+  /* Dynamic viewport height for mobile */
   background-color: #1a1a1a;
   /* Ensure proper stacking and no overflow */
   position: relative;

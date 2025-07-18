@@ -1,13 +1,10 @@
 <template>
   <div class="assistant-message">
-    <!-- Loading State -->
     <div v-if="message.isLoading">
       <ResponseLoadingSpinner />
     </div>
 
-    <!-- Message Content -->
     <div v-else class="message-content">
-      <!-- Error State -->
       <div v-if="message.error" class="error-message">
         <div class="error-header">
           <AlertIcon />
@@ -22,16 +19,8 @@
       <!-- Normal Message -->
       <div v-else class="formatted-content" v-html="formatMessageContent(message.content)"></div>
 
-      <!-- Footer with timestamp and copy button -->
-      <div class="message-footer">
-        <div class="timestamp">
-          {{ formatTime(message.timestamp) }}
-        </div>
-
-        <button @click="handleCopy" class="copy-button" title="Copy message">
-          <CopyIcon />
-        </button>
-      </div>
+      <AssistantMessageFooter :message-id="message.id" :timestamp="message.timestamp" :existing-feedback="message.user_feedback" @copy="handleCopy"
+        @feedback="handleFeedback" />
     </div>
   </div>
 </template>
@@ -39,8 +28,10 @@
 <script setup lang="ts">
 import type { ChatMessage } from '@/types/chat'
 import ResponseLoadingSpinner from '@/components/prompt/ResponseLoadingSpinner.vue'
-import { AlertIcon, CopyIcon } from '@/components/ui/icons'
+import { AlertIcon } from '@/components/ui/icons'
 import { formatMessageContent } from '@/utils/messageFormatter'
+import AssistantMessageFooter from './AssistantMessageFooter.vue'
+import type { FeedbackIssue, FeedbackType } from '@/types/feedback'
 
 interface Props {
   message: ChatMessage
@@ -51,15 +42,13 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   'copy-message': [messageId: string]
   'retry-message': []
+  'feedback': [data: {
+    messageId: string
+    feedbackType: FeedbackType
+    issues?: FeedbackIssue[]
+    description?: string
+  }]
 }>()
-
-const formatTime = (timestamp: Date): string => {
-  return new Intl.DateTimeFormat('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  }).format(timestamp)
-}
 
 const handleCopy = () => {
   emit('copy-message', props.message.id)
@@ -68,12 +57,20 @@ const handleCopy = () => {
 const handleRetry = () => {
   emit('retry-message')
 }
+
+const handleFeedback = (data: {
+  messageId: string
+  feedbackType: FeedbackType
+  issues?: FeedbackIssue[]
+  description?: string
+}) => {
+  emit('feedback', data)
+}
 </script>
 
 <style scoped>
 .assistant-message {
   width: 100%;
-  padding: 0 1rem;
 }
 
 .message-content {
@@ -123,41 +120,13 @@ const handleRetry = () => {
   color: #d1d5db;
 }
 
-.message-footer {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-}
-
-.timestamp {
-  font-size: 0.75rem;
-  color: #9ca3af;
-}
-
-.copy-button {
-  opacity: 0.6;
-  transition: opacity 200ms;
-  padding: 0.25rem;
-  border-radius: 0.25rem;
-  background: none;
-  border: none;
-  color: #9ca3af;
-  cursor: pointer;
-}
-
-.copy-button:hover {
-  opacity: 1;
-  background-color: #4b5563;
-}
-
 /* Content formatting styles */
 :deep(.paragraph) {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 :deep(.bullet-group) {
-  margin: 0.5rem 0;
+  margin: 0.5rem;
 }
 
 :deep(.bullet-item) {

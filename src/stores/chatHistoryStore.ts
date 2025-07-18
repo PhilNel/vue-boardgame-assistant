@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed, readonly } from 'vue'
 import type { ChatMessage } from '@/types/chat'
+import { MessageRole } from '@/types/chat'
 import { chatHistoryService } from '@/services/chatHistoryService'
 import { CHAT_HISTORY } from '@/constants/chat'
 import { applySlidingWindow } from '@/utils/messageUtils'
@@ -20,7 +21,7 @@ export const useChatHistoryStore = defineStore('chatHistory', () => {
   }
 
   function saveMessage(gameId: string, message: ChatMessage) {
-    const shouldAddMessageToHistory = message.role === 'user' || message.role === 'assistant';
+    const shouldAddMessageToHistory = message.role === MessageRole.USER || message.role === MessageRole.ASSISTANT;
     if (shouldAddMessageToHistory) {
       chatHistoryService.saveMessage(gameId, message)
       history.value.push(message)

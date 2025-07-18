@@ -1,17 +1,18 @@
 import { v4 as uuidv4 } from "uuid";
 import type { ChatMessage } from "@/types/chat";
+import { MessageRole } from "@/types/chat";
 
 export const createUserMessage = (content: string): ChatMessage => ({
   id: uuidv4(),
   content: content.trim(),
-  role: "user",
+  role: MessageRole.USER,
   timestamp: new Date(),
 });
 
 export const createLoadingMessage = (): ChatMessage => ({
   id: uuidv4(),
   content: "",
-  role: "assistant",
+  role: MessageRole.ASSISTANT,
   timestamp: new Date(),
   isLoading: true,
 });
@@ -22,7 +23,7 @@ export const createAssistantMessage = (
 ): ChatMessage => ({
   id: uuidv4(),
   content,
-  role: "assistant",
+  role: MessageRole.ASSISTANT,
   timestamp: timestamp || new Date(),
 });
 
@@ -32,7 +33,7 @@ export const createErrorMessage = (
 ): ChatMessage => ({
   id: uuidv4(),
   content,
-  role: "assistant",
+  role: MessageRole.ASSISTANT,
   timestamp: new Date(),
   error: errorCode,
 });

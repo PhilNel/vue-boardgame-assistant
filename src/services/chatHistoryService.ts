@@ -11,7 +11,13 @@ class ChatHistoryService {
       }
 
       const messages = this.getHistory(gameId);
-      messages.push(message);
+      
+      const existingIndex = messages.findIndex(m => m.id === message.id);
+      if (existingIndex !== -1) {
+        messages[existingIndex] = message;
+      } else {
+        messages.push(message);
+      }
 
       const trimmedMessages = applySlidingWindow(
         messages,
