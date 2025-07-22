@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import type { ChatMessage } from "@/types/chat";
+import type { ChatMessage, ReferenceInfo } from "@/types/chat";
 import { MessageRole } from "@/types/chat";
 
 export const createUserMessage = (content: string): ChatMessage => ({
@@ -19,12 +19,14 @@ export const createLoadingMessage = (): ChatMessage => ({
 
 export const createAssistantMessage = (
   content: string,
-  timestamp?: Date
+  timestamp?: Date,
+  references?: ReferenceInfo[]
 ): ChatMessage => ({
   id: uuidv4(),
   content,
   role: MessageRole.ASSISTANT,
   timestamp: timestamp || new Date(),
+  references,
 });
 
 export const createErrorMessage = (
@@ -35,7 +37,7 @@ export const createErrorMessage = (
   content,
   role: MessageRole.ASSISTANT,
   timestamp: new Date(),
-  error: errorCode,
+  error: errorCode || "UNKNOWN_ERROR",
 });
 
 export const applySlidingWindow = (

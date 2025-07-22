@@ -35,6 +35,7 @@ export class ChatService {
         success: true,
         data: {
           message: response.data.answer,
+          references: response.data.references || undefined,
           timestamp: new Date().toISOString(),
         },
       };

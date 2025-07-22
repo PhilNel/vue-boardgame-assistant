@@ -18,7 +18,8 @@ export const handleApiResponse = async (
   if (response.success && response.data) {
     const assistantMessage = createAssistantMessage(
       response.data.message,
-      new Date(response.data.timestamp)
+      new Date(response.data.timestamp),
+      response.data.references
     );
     chatStore.addMessage(assistantMessage);
   } else {
@@ -46,12 +47,12 @@ export const handleApiError = (
 };
 
 export const sendChatMessage = async (
-  content: string,
+  message: string,
   sessionId: string,
   gameId: string
 ) => {
   return await chatService.sendMessage({
-    message: content,
+    message,
     sessionId,
     game: gameId,
   });
