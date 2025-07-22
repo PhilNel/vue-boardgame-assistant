@@ -16,8 +16,10 @@
         </button>
       </div>
 
-      <!-- Normal Message -->
-      <div v-else class="formatted-content" v-html="formatMessageContent(message.content)"></div>
+      <FootnoteText 
+        :response="formatMessageContent(message.content)"
+        :references="message.references"
+      />
 
       <AssistantMessageFooter :message-id="message.id" :timestamp="message.timestamp" :existing-feedback="message.user_feedback" @copy="handleCopy"
         @feedback="handleFeedback" />
@@ -31,6 +33,7 @@ import ResponseLoadingSpinner from '@/components/prompt/ResponseLoadingSpinner.v
 import { AlertIcon } from '@/components/ui/icons'
 import { formatMessageContent } from '@/utils/messageFormatter'
 import AssistantMessageFooter from './AssistantMessageFooter.vue'
+import FootnoteText from './FootnoteText.vue'
 import type { FeedbackIssue, FeedbackType } from '@/types/feedback'
 
 interface Props {

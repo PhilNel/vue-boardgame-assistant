@@ -4,6 +4,14 @@ export enum MessageRole {
   SYSTEM = 'system'
 }
 
+export interface ReferenceInfo {
+  id: number
+  title: string
+  section: string
+  page: string
+  url: string
+}
+
 export interface ChatMessage {
   id: string
   content: string
@@ -11,6 +19,7 @@ export interface ChatMessage {
   timestamp: Date
   isLoading?: boolean
   error?: string
+  references?: ReferenceInfo[]
   user_feedback?: {
     type: 'positive' | 'negative'
     submitted_at: string
@@ -39,12 +48,15 @@ export interface GameInfo {
   isAvailable: boolean
 }
 
+export interface ApiResponseData {
+  message: string
+  references?: ReferenceInfo[]
+  timestamp: string
+}
+
 export interface ApiResponse {
   success: boolean
-  data?: {
-    message: string
-    timestamp: string
-  }
+  data?: ApiResponseData
   error?: {
     code: string
     message: string
