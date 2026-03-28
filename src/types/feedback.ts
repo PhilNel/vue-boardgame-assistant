@@ -1,7 +1,4 @@
-export const FEEDBACK_TYPES = [
-  "positive",
-  "negative",
-] as const;
+export const FEEDBACK_TYPES = ["positive", "negative"] as const;
 
 export type FeedbackType = (typeof FEEDBACK_TYPES)[number];
 

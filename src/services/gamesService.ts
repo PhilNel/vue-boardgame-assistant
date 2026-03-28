@@ -2,6 +2,10 @@ import type { GameInfo } from "@/types/chat";
 import { getApiKey } from "@/utils/httpUtils";
 import type { HttpClient } from "./httpClient";
 
+interface GamesListResponseBody {
+  games: string[];
+}
+
 export const AVAILABLE_GAMES: GameInfo[] = [
   {
     id: "nemesis",
@@ -17,12 +21,12 @@ export class GamesService {
   async getAvailableGames(): Promise<GameInfo[]> {
     this.httpClient.setHeader("x-api-key", getApiKey());
 
-    const response = await this.httpClient.get("/games");
+    const response = await this.httpClient.get<GamesListResponseBody>("/games");
 
-    if (response.success) {
-      const hasGamesData = response.data.games
-      const gamesDataIsArray = Array.isArray(response.data.games)
-      
+    if (response.success && response.data) {
+      const hasGamesData = response.data.games;
+      const gamesDataIsArray = Array.isArray(response.data.games);
+
       if (hasGamesData && gamesDataIsArray) {
         return response.data.games.map((game: string) => ({
           id: game,
@@ -32,10 +36,7 @@ export class GamesService {
         }));
       }
     } else {
-      console.warn(
-        "Failed to fetch games from API, using fallback:",
-        response.error
-      );
+      console.warn("Failed to fetch games from API, using fallback:", response.error);
     }
 
     return AVAILABLE_GAMES;

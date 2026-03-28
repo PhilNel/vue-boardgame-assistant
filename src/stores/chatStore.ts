@@ -25,7 +25,7 @@ export const useChatStore = defineStore("chat", {
         historyStore.loadHistory(gameId);
 
         if (historyStore.history.length > 0) {
-          this.messages = [...historyStore.history];
+          this.messages = [...historyStore.history] as ChatMessage[];
         } else {
           this.messages = [];
         }
@@ -52,7 +52,7 @@ export const useChatStore = defineStore("chat", {
       const message = this.messages.find((m) => m.id === messageId);
       if (message) {
         Object.assign(message, updates);
-        
+
         if (this.currentGame) {
           const historyStore = useChatHistoryStore();
           historyStore.saveMessage(this.currentGame, message);
@@ -75,18 +75,14 @@ export const useChatStore = defineStore("chat", {
     },
 
     removeMessagesAfterUserMessage(userMessageId: string) {
-      const userMessageIndex = this.messages.findIndex(
-        (m) => m.id === userMessageId
-      );
+      const userMessageIndex = this.messages.findIndex((m) => m.id === userMessageId);
       if (userMessageIndex !== -1) {
         this.messages = this.messages.slice(0, userMessageIndex + 1);
       }
     },
 
     getLastUserMessage(): ChatMessage | null {
-      return (
-        [...this.messages].reverse().find((m) => m.role === "user") || null
-      );
+      return [...this.messages].reverse().find((m) => m.role === "user") || null;
     },
 
     setLoading(loading: boolean) {

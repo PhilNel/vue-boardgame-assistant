@@ -7,8 +7,7 @@ export const useGameStore = defineStore("game", {
   }),
 
   getters: {
-    selectedGame: (state) =>
-      AVAILABLE_GAMES.find((game) => game.id === state.selectedGameId),
+    selectedGame: (state) => AVAILABLE_GAMES.find((game) => game.id === state.selectedGameId),
 
     availableGames: () => AVAILABLE_GAMES,
   },

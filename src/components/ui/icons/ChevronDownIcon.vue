@@ -5,8 +5,8 @@
 </template>
 
 <style scoped>
-.chevron-down-icon {
-  width: 1rem;
-  height: 1rem;
-}
-</style> 
+  .chevron-down-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+</style>

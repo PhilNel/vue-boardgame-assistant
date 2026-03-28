@@ -2,11 +2,7 @@ import { computed, nextTick } from "vue";
 import { useChatStore } from "@/stores/chatStore";
 import { useGameStore } from "@/stores/gameStore";
 import { createUserMessage, createLoadingMessage } from "@/utils/messageUtils";
-import {
-  handleApiResponse,
-  handleApiError,
-  sendChatMessage,
-} from "@/utils/chatUtils";
+import { handleApiResponse, handleApiError, sendChatMessage } from "@/utils/chatUtils";
 import { feedbackService } from "@/services";
 import type { FeedbackIssue, FeedbackType } from "@/types/feedback";
 
@@ -73,14 +69,14 @@ export function useChat() {
 
       if (response.success) {
         console.log("✅ Feedback submitted successfully");
-        
+
         chatStore.updateMessage(data.messageId, {
           user_feedback: {
             type: data.feedbackType,
-            submitted_at: new Date().toISOString()
-          }
+            submitted_at: new Date().toISOString(),
+          },
         });
-        
+
         return true;
       } else {
         console.error("❌ Failed to submit feedback:", response.error);
@@ -101,7 +97,7 @@ export function useChat() {
           pairs: Array<{ question: string; answer: string; timestamp: string }>,
           message,
           index,
-          array
+          array,
         ) => {
           if (
             message.role === "user" &&
@@ -116,7 +112,7 @@ export function useChat() {
           }
           return pairs;
         },
-        []
+        [],
       );
 
     return {
@@ -136,7 +132,7 @@ export function useChat() {
       const response = await sendChatMessage(
         content,
         crypto.randomUUID(),
-        gameStore.selectedGameId
+        gameStore.selectedGameId,
       );
 
       await handleApiResponse(response, loadingMessage, chatStore);

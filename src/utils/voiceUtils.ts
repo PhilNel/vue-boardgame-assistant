@@ -6,26 +6,24 @@ const ERROR_MESSAGES: Record<VoiceRecognitionErrorType, string> = {
     "Something is limiting my magic - your browser doesn't support voice recognition",
   [VoiceRecognitionErrorType.PERMISSION_DENIED]:
     "I need microphone access to hear you - please allow it in your browser",
-  [VoiceRecognitionErrorType.NETWORK_ERROR]:
-    "Network hiccup - check your connection and try again",
+  [VoiceRecognitionErrorType.NETWORK_ERROR]: "Network hiccup - check your connection and try again",
   [VoiceRecognitionErrorType.NO_SPEECH]:
     "I didn't hear anything - try speaking closer to your microphone",
   [VoiceRecognitionErrorType.RECOGNITION_FAILED]:
     "Something went wrong with voice recognition - please try again",
-  [VoiceRecognitionErrorType.NO_SPEECH_LOUD]:
-    "I didn't catch that - try speaking a bit louder",
+  [VoiceRecognitionErrorType.NO_SPEECH_LOUD]: "I didn't catch that - try speaking a bit louder",
 };
 
 export const createVoiceError = (
   type: VoiceRecognitionErrorType,
-  message: string
+  message: string,
 ): VoiceRecognitionError => {
   return { type, message };
 };
 
 export const buildVoiceError = (
   type: VoiceRecognitionErrorType,
-  customMessage?: string
+  customMessage?: string,
 ): VoiceRecognitionError => {
   const message =
     customMessage ||

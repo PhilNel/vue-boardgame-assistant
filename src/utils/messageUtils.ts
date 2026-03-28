@@ -20,7 +20,7 @@ export const createLoadingMessage = (): ChatMessage => ({
 export const createAssistantMessage = (
   content: string,
   timestamp?: Date,
-  references?: ReferenceInfo[]
+  references?: ReferenceInfo[],
 ): ChatMessage => ({
   id: uuidv4(),
   content,
@@ -29,10 +29,7 @@ export const createAssistantMessage = (
   references,
 });
 
-export const createErrorMessage = (
-  content: string,
-  errorCode?: string
-): ChatMessage => ({
+export const createErrorMessage = (content: string, errorCode?: string): ChatMessage => ({
   id: uuidv4(),
   content,
   role: MessageRole.ASSISTANT,
@@ -40,24 +37,20 @@ export const createErrorMessage = (
   error: errorCode || "UNKNOWN_ERROR",
 });
 
-export const applySlidingWindow = (
-  messages: ChatMessage[],
-  maxMessages: number
-): ChatMessage[] => {
+export const applySlidingWindow = (messages: ChatMessage[], maxMessages: number): ChatMessage[] => {
   if (messages.length <= maxMessages) {
     return messages;
   }
 
   const messagesToRemove = messages.length - maxMessages;
-  const removeCount =
-    messagesToRemove % 2 === 0 ? messagesToRemove : messagesToRemove + 1;
+  const removeCount = messagesToRemove % 2 === 0 ? messagesToRemove : messagesToRemove + 1;
 
   const result = [...messages];
   result.splice(0, removeCount);
   return result;
 };
 
-export const getErrorMessage = (error: any): string => {
+export const getErrorMessage = (error: { code?: string; message?: string } | undefined): string => {
   if (error?.code === "RATE_LIMITED") {
     return "⏳ The AI service is temporarily overloaded. Please wait 30-60 seconds before trying again. You can also try asking a more specific question to reduce processing time.";
   }

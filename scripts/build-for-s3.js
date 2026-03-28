@@ -2,12 +2,12 @@
 
 import { execSync } from "child_process";
 
-console.log(" Building for S3 deployment...");
+console.log("Building for S3 deployment...");
 
 console.log("Cleaning previous build...");
 try {
   execSync("bun run clean", { stdio: "inherit" });
-} catch (error) {
+} catch {
   console.log("No previous build to clean");
 }
 

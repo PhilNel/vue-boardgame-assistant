@@ -48,7 +48,7 @@ export class MessageFormatter {
     const line = this.lines[startIndex].trim();
     let html = `<div class="bullet-group">`;
     html += `<div class="bullet-item"><span class="bullet-point">•</span><span>${line.substring(
-      2
+      2,
     )}</span></div>`;
 
     let i = startIndex + 1;
@@ -70,7 +70,7 @@ export class MessageFormatter {
     const line = this.lines[startIndex].trim();
     let html = `<div class="bullet-group">`;
     html += `<div class="bullet-item"><span class="main-bullet">•</span><span>${line.substring(
-      2
+      2,
     )}</span></div>`;
 
     let i = startIndex + 1;

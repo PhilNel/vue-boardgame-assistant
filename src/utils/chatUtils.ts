@@ -1,4 +1,4 @@
-import type { ChatMessage } from "@/types/chat";
+import type { ApiResponse, ChatMessage } from "@/types/chat";
 import { chatService } from "@/services";
 import { useChatStore } from "@/stores/chatStore";
 import {
@@ -9,9 +9,9 @@ import {
 } from "./messageUtils";
 
 export const handleApiResponse = async (
-  response: any,
+  response: ApiResponse,
   loadingMessage: ChatMessage,
-  chatStore: ReturnType<typeof useChatStore>
+  chatStore: ReturnType<typeof useChatStore>,
 ) => {
   chatStore.removeMessage(loadingMessage.id);
 
@@ -19,7 +19,7 @@ export const handleApiResponse = async (
     const assistantMessage = createAssistantMessage(
       response.data.message,
       new Date(response.data.timestamp),
-      response.data.references
+      response.data.references,
     );
     chatStore.addMessage(assistantMessage);
   } else {
@@ -31,26 +31,19 @@ export const handleApiResponse = async (
 };
 
 export const handleApiError = (
-  error: any,
+  error: unknown,
   loadingMessage: ChatMessage,
-  chatStore: ReturnType<typeof useChatStore>
+  chatStore: ReturnType<typeof useChatStore>,
 ) => {
   chatStore.removeMessage(loadingMessage.id);
 
-  const errorMessage = createErrorMessage(
-    CONNECTION_ERROR_MESSAGE,
-    "CONNECTION_ERROR"
-  );
+  const errorMessage = createErrorMessage(CONNECTION_ERROR_MESSAGE, "CONNECTION_ERROR");
   chatStore.addMessage(errorMessage);
   chatStore.setError("Connection error");
   console.error("Chat error:", error);
 };
 
-export const sendChatMessage = async (
-  message: string,
-  sessionId: string,
-  gameId: string
-) => {
+export const sendChatMessage = async (message: string, sessionId: string, gameId: string) => {
   return await chatService.sendMessage({
     message,
     sessionId,

@@ -2,8 +2,7 @@
 
 import { execSync } from "child_process";
 
-const CLOUDFRONT_DISTRIBUTION_ID =
-  process.env.CLOUDFRONT_DISTRIBUTION_ID || "E2TG71WCF6SOU";
+const CLOUDFRONT_DISTRIBUTION_ID = process.env.CLOUDFRONT_DISTRIBUTION_ID || "E2TG71WCF6SOU";
 const AWS_PROFILE = process.env.AWS_PROFILE || "default";
 
 console.log(`Invalidating CloudFront cache`);

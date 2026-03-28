@@ -2,15 +2,26 @@ import { ref, computed } from "vue";
 import type {
   VoiceRecognitionResult,
   VoiceRecognitionError,
+  BrowserSpeechRecognition,
+  WebSpeechRecognitionEvent,
+  WebSpeechErrorEvent,
+  SpeechRecognitionConstructor,
 } from "@/types/voice";
 import { VoiceRecognitionErrorType } from "@/types/voice";
 import { buildVoiceError } from "@/utils/voiceUtils";
 
-export const useVoiceRecognition = () => {
+declare global {
+  interface Window {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  }
+}
+
+export function useVoiceRecognition() {
   const isRecording = ref(false);
   const isProcessing = ref(false);
   const error = ref<VoiceRecognitionError | null>(null);
-  const currentRecognition = ref<any>(null);
+  const currentRecognition = ref<BrowserSpeechRecognition | null>(null);
 
   const isSupported = computed(() => {
     return "webkitSpeechRecognition" in window || "SpeechRecognition" in window;
@@ -18,17 +29,19 @@ export const useVoiceRecognition = () => {
 
   const buildError = (
     type: VoiceRecognitionErrorType,
-    customMessage?: string
+    customMessage?: string,
   ): VoiceRecognitionError => {
     const voiceError = buildVoiceError(type, customMessage);
     error.value = voiceError;
     return voiceError;
   };
 
-  const createRecognitionInstance = () => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
+  const createRecognitionInstance = (): BrowserSpeechRecognition => {
+    const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognitionCtor) {
+      throw new Error("SpeechRecognition constructor missing");
+    }
+    const recognition = new SpeechRecognitionCtor();
 
     recognition.lang = "en-US";
     recognition.continuous = false;
@@ -38,7 +51,7 @@ export const useVoiceRecognition = () => {
     return recognition;
   };
 
-  const createStartHandler = () => {
+  const createStartHandler = (): (() => void) => {
     return () => {
       isRecording.value = true;
       isProcessing.value = false;
@@ -47,9 +60,9 @@ export const useVoiceRecognition = () => {
 
   const createResultHandler = (
     resolve: (value: VoiceRecognitionResult) => void,
-    reject: (error: VoiceRecognitionError) => void
-  ) => {
-    return (event: SpeechRecognitionEvent) => {
+    reject: (error: VoiceRecognitionError) => void,
+  ): ((event: WebSpeechRecognitionEvent) => void) => {
+    return (event: WebSpeechRecognitionEvent) => {
       isRecording.value = false;
       isProcessing.value = true;
 
@@ -58,7 +71,6 @@ export const useVoiceRecognition = () => {
         const transcript = result[0].transcript.trim();
         const confidence = result[0].confidence;
 
-        // Accept any non-empty transcript, even with low confidence
         if (transcript.length > 0) {
           isProcessing.value = false;
           resolve({ transcript, confidence });
@@ -73,9 +85,9 @@ export const useVoiceRecognition = () => {
   };
 
   const createErrorHandler = (
-    reject: (error: VoiceRecognitionError) => void
-  ) => {
-    return (event: SpeechRecognitionErrorEvent) => {
+    reject: (error: VoiceRecognitionError) => void,
+  ): ((event: WebSpeechErrorEvent) => void) => {
+    return (event: WebSpeechErrorEvent) => {
       isRecording.value = false;
       isProcessing.value = false;
       currentRecognition.value = null;
@@ -101,13 +113,12 @@ export const useVoiceRecognition = () => {
     };
   };
 
-  const createEndHandler = (reject: (error: VoiceRecognitionError) => void) => {
+  const createEndHandler = (reject: (error: VoiceRecognitionError) => void): (() => void) => {
     return () => {
       isRecording.value = false;
       currentRecognition.value = null;
 
       if (isProcessing.value) {
-        // Processing will be handled by onresult or onerror
         return;
       }
 
@@ -117,10 +128,10 @@ export const useVoiceRecognition = () => {
   };
 
   const attachEventListeners = (
-    recognition: any,
+    recognition: BrowserSpeechRecognition,
     resolve: (value: VoiceRecognitionResult) => void,
-    reject: (error: VoiceRecognitionError) => void
-  ) => {
+    reject: (error: VoiceRecognitionError) => void,
+  ): void => {
     recognition.onstart = createStartHandler();
     recognition.onresult = createResultHandler(resolve, reject);
     recognition.onerror = createErrorHandler(reject);
@@ -144,32 +155,32 @@ export const useVoiceRecognition = () => {
 
       try {
         recognition.start();
-      } catch (err) {
+      } catch {
         const errorObj = buildError(
           VoiceRecognitionErrorType.RECOGNITION_FAILED,
-          "Couldn't start voice recognition - please try again"
+          "Couldn't start voice recognition - please try again",
         );
         reject(errorObj);
       }
     });
   };
 
-  const stopRecording = () => {
+  const stopRecording = (): void => {
     if (currentRecognition.value) {
       try {
         currentRecognition.value.stop();
-      } catch (err) {
+      } catch (err: unknown) {
         console.warn("Error stopping recognition:", err);
       }
     }
     isRecording.value = false;
   };
 
-  const clearError = () => {
+  const clearError = (): void => {
     error.value = null;
   };
 
-  const clearProcessing = () => {
+  const clearProcessing = (): void => {
     isProcessing.value = false;
   };
 
@@ -183,37 +194,4 @@ export const useVoiceRecognition = () => {
     clearError,
     clearProcessing,
   };
-};
-
-declare global {
-  interface Window {
-    SpeechRecognition: any;
-    webkitSpeechRecognition: any;
-  }
-}
-
-interface SpeechRecognitionEvent {
-  results: SpeechRecognitionResultList;
-  resultIndex: number;
-}
-
-interface SpeechRecognitionErrorEvent {
-  error: string;
-  message: string;
-}
-
-interface SpeechRecognitionResultList {
-  [index: number]: SpeechRecognitionResult;
-  length: number;
-}
-
-interface SpeechRecognitionResult {
-  [index: number]: SpeechRecognitionAlternative;
-  length: number;
-  isFinal: boolean;
-}
-
-interface SpeechRecognitionAlternative {
-  transcript: string;
-  confidence: number;
 }

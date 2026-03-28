@@ -11,18 +11,15 @@ class ChatHistoryService {
       }
 
       const messages = this.getHistory(gameId);
-      
-      const existingIndex = messages.findIndex(m => m.id === message.id);
+
+      const existingIndex = messages.findIndex((m) => m.id === message.id);
       if (existingIndex !== -1) {
         messages[existingIndex] = message;
       } else {
         messages.push(message);
       }
 
-      const trimmedMessages = applySlidingWindow(
-        messages,
-        CHAT_HISTORY.MAX_MESSAGES
-      );
+      const trimmedMessages = applySlidingWindow(messages, CHAT_HISTORY.MAX_MESSAGES);
 
       this.saveHistory(gameId, trimmedMessages);
     } catch (error) {
@@ -56,10 +53,7 @@ class ChatHistoryService {
 
   private saveHistory(gameId: string, messages: ChatMessage[]): void {
     try {
-      localStorage.setItem(
-        this.getStorageKey(gameId),
-        JSON.stringify(messages)
-      );
+      localStorage.setItem(this.getStorageKey(gameId), JSON.stringify(messages));
     } catch (error) {
       console.error("Failed to save history:", error);
     }

@@ -10,10 +10,20 @@ export interface HttpError {
   message: string;
 }
 
-export interface HttpResponse<T = any> {
+export interface HttpResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: HttpError;
+}
+
+function messageFromResponseData(data: unknown): string | undefined {
+  if (typeof data === "object" && data !== null && "message" in data) {
+    const msg = (data as { message: unknown }).message;
+    if (typeof msg === "string") {
+      return msg;
+    }
+  }
+  return undefined;
 }
 
 export class HttpClient {
@@ -48,22 +58,20 @@ export class HttpClient {
         success: false,
         error: {
           code: "NETWORK_ERROR",
-          message:
-            "Unable to connect to the server. Please check your internet connection.",
+          message: "Unable to connect to the server. Please check your internet connection.",
         },
       };
     }
 
     const status = error.response.status;
-    const errorData = error.response.data as any;
+    const errorData = error.response.data as unknown;
 
     if (status === 401 || status === 403) {
       return {
         success: false,
         error: {
           code: "UNAUTHORIZED",
-          message:
-            "API key is invalid or missing. Please check your authentication.",
+          message: "API key is invalid or missing. Please check your authentication.",
         },
       };
     }
@@ -73,8 +81,7 @@ export class HttpClient {
         success: false,
         error: {
           code: "RATE_LIMITED",
-          message:
-            "Too many requests. Please wait a moment before trying again.",
+          message: "Too many requests. Please wait a moment before trying again.",
         },
       };
     }
@@ -83,15 +90,12 @@ export class HttpClient {
       success: false,
       error: {
         code: "API_ERROR",
-        message: errorData?.message || `Server error: ${status}`,
+        message: messageFromResponseData(errorData) || `Server error: ${status}`,
       },
     };
   }
 
-  async get<T = any>(
-    url: string,
-    config?: AxiosRequestConfig
-  ): Promise<HttpResponse<T>> {
+  async get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<HttpResponse<T>> {
     try {
       const response = await this.client.get<T>(url, config);
       return {
@@ -100,7 +104,7 @@ export class HttpClient {
       };
     } catch (error) {
       if (error instanceof AxiosError) {
-        return this.handleError(error);
+        return this.handleError(error) as HttpResponse<T>;
       }
       return {
         success: false,
@@ -112,10 +116,10 @@ export class HttpClient {
     }
   }
 
-  async post<T = any>(
+  async post<T = unknown>(
     url: string,
-    data?: any,
-    config?: AxiosRequestConfig
+    data?: unknown,
+    config?: AxiosRequestConfig,
   ): Promise<HttpResponse<T>> {
     try {
       const response = await this.client.post<T>(url, data, config);
@@ -125,7 +129,7 @@ export class HttpClient {
       };
     } catch (error) {
       if (error instanceof AxiosError) {
-        return this.handleError(error);
+        return this.handleError(error) as HttpResponse<T>;
       }
       return {
         success: false,

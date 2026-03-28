@@ -1,9 +1,10 @@
-import type { ApiResponse, SendMessageRequest } from "@/types/chat";
-import {
-  getApiKey,
-  convertToApiResponse,
-  validateApiKey,
-} from "@/utils/httpUtils";
+import type { ApiResponse, ReferenceInfo, SendMessageRequest } from "@/types/chat";
+
+interface ChatPostResponseBody {
+  answer: string;
+  references?: ReferenceInfo[];
+}
+import { getApiKey, convertToApiResponse, validateApiKey } from "@/utils/httpUtils";
 import type { HttpClient } from "./httpClient";
 
 export class ChatService {
@@ -22,13 +23,13 @@ export class ChatService {
 
     this.httpClient.setHeader("x-api-key", getApiKey());
 
-    const response = await this.httpClient.post("/chat", {
+    const response = await this.httpClient.post<ChatPostResponseBody>("/chat", {
       gameName: request.game,
       question: request.message,
       session_id: request.sessionId || undefined,
     });
 
-    if (response.success) {
+    if (response.success && response.data) {
       console.log("✅ API Response received:", response.data);
 
       return {
@@ -43,7 +44,7 @@ export class ChatService {
 
     return convertToApiResponse(
       response,
-      "API key is invalid or missing. Please set your API key in the settings."
+      "API key is invalid or missing. Please set your API key in the settings.",
     );
   }
 

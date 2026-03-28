@@ -3,12 +3,15 @@ import { FEEDBACK_TYPES } from "@/types/feedback";
 import type { HttpClient } from "./httpClient";
 import { getApiKey } from "@/utils/httpUtils";
 
+interface FeedbackPostResponseBody {
+  feedback_id?: string;
+  message?: string;
+}
+
 export class FeedbackService {
   constructor(private httpClient: HttpClient) {}
 
-  async submitFeedback(
-    submission: FeedbackSubmission
-  ): Promise<FeedbackApiResponse> {
+  async submitFeedback(submission: FeedbackSubmission): Promise<FeedbackApiResponse> {
     console.log("🚀 Submitting feedback:", {
       messageId: submission.message_id,
       feedbackType: submission.feedback_type,
@@ -28,7 +31,7 @@ export class FeedbackService {
       submission.user_hash = await this.generateUserHash(apiKey);
     }
 
-    const response = await this.httpClient.post("/feedback", {
+    const response = await this.httpClient.post<FeedbackPostResponseBody>("/feedback", {
       message_id: submission.message_id,
       game_name: submission.game_name,
       feedback_type: submission.feedback_type,
@@ -39,7 +42,7 @@ export class FeedbackService {
       timestamp: new Date().toISOString(),
     });
 
-    if (response.success) {
+    if (response.success && response.data) {
       return {
         success: true,
         data: {
@@ -53,16 +56,12 @@ export class FeedbackService {
       success: false,
       error: {
         code: response.error?.code || "FEEDBACK_ERROR",
-        message:
-          response.error?.message ||
-          "Failed to submit feedback. Please try again later.",
+        message: response.error?.message || "Failed to submit feedback. Please try again later.",
       },
     };
   }
 
-  private validateRequest(
-    submission: FeedbackSubmission
-  ): FeedbackApiResponse | null {
+  private validateRequest(submission: FeedbackSubmission): FeedbackApiResponse | null {
     if (!submission.message_id?.trim()) {
       return {
         success: false,
@@ -83,7 +82,7 @@ export class FeedbackService {
       };
     }
 
-    if (!FEEDBACK_TYPES.includes(submission.feedback_type as any)) {
+    if (!(FEEDBACK_TYPES as readonly string[]).includes(submission.feedback_type)) {
       return {
         success: false,
         error: {

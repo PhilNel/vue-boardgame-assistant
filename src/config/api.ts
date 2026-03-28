@@ -1,12 +1,9 @@
 import { HttpClient } from "@/services/httpClient";
 
-const API_BASE_URL =
-  (import.meta as any).env.VITE_API_BASE_URL ||
-  "https://api.boardgamewarlock.com/api/v1";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.boardgamewarlock.com/api/v1";
 
 const FEEDBACK_API_BASE_URL =
-  (import.meta as any).env.VITE_FEEDBACK_API_BASE_URL ||
-  "https://feedback.boardgamewarlock.com/api/v1";
+  import.meta.env.VITE_FEEDBACK_API_BASE_URL || "https://feedback.boardgamewarlock.com/api/v1";
 
 export const apiHttpClient = new HttpClient({
   baseURL: API_BASE_URL,
@@ -19,5 +16,5 @@ export const feedbackHttpClient = new HttpClient({
 export const config = {
   API_BASE_URL,
   FEEDBACK_API_BASE_URL,
-  ENVIRONMENT: (import.meta as any).env.MODE || "development",
+  ENVIRONMENT: import.meta.env.MODE || "development",
 };

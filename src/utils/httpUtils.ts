@@ -1,4 +1,5 @@
-import type { ApiResponse } from "@/types/chat";
+import type { ApiResponse, ApiResponseData } from "@/types/chat";
+import type { HttpResponse } from "@/services/httpClient";
 import { useSettingsStore } from "@/stores/settings";
 
 export const getApiKey = (): string => {
@@ -7,13 +8,13 @@ export const getApiKey = (): string => {
 };
 
 export const convertToApiResponse = (
-  httpResponse: any,
-  customAuthMessage?: string
+  httpResponse: HttpResponse<unknown>,
+  customAuthMessage?: string,
 ): ApiResponse => {
   if (httpResponse.success) {
     return {
       success: true,
-      data: httpResponse.data,
+      data: httpResponse.data as ApiResponseData | undefined,
     };
   }
 
@@ -40,8 +41,7 @@ export const validateApiKey = (): ApiResponse | null => {
       success: false,
       error: {
         code: "NO_API_KEY",
-        message:
-          "Please set your API key in the settings to use the assistant.",
+        message: "Please set your API key in the settings to use the assistant.",
       },
     };
   }

@@ -1,56 +1,56 @@
 <template>
-    <div class="collapsible-section">
-        <div class="header-row">
-            <span class="header-text">{{ title }}</span>
-            <button @click="toggle" class="toggle-button">
-                <span class="toggle-icon">{{ isExpanded ? '-' : '+' }}</span>
-            </button>
-        </div>
-
-        <div v-show="isExpanded" class="content">
-            <slot />
-        </div>
+  <div class="collapsible-section">
+    <div class="header-row">
+      <span class="header-text">{{ title }}</span>
+      <button class="toggle-button" @click="toggle">
+        <span class="toggle-icon">{{ isExpanded ? "-" : "+" }}</span>
+      </button>
     </div>
+
+    <div v-show="isExpanded" class="content">
+      <slot />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+  import { ref } from "vue";
 
-interface Props {
-    title: string
-    initiallyExpanded?: boolean
-}
+  interface Props {
+    title: string;
+    initiallyExpanded?: boolean;
+  }
 
-const props = withDefaults(defineProps<Props>(), {
-    initiallyExpanded: false
-})
+  const props = withDefaults(defineProps<Props>(), {
+    initiallyExpanded: false,
+  });
 
-const isExpanded = ref(props.initiallyExpanded)
+  const isExpanded = ref(props.initiallyExpanded);
 
-const toggle = () => {
-    isExpanded.value = !isExpanded.value
-}
+  const toggle = () => {
+    isExpanded.value = !isExpanded.value;
+  };
 </script>
 
 <style scoped>
-.collapsible-section {
+  .collapsible-section {
     width: 100%;
-}
+  }
 
-.header-row {
+  .header-row {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 0.75rem;
-}
+  }
 
-.header-text {
+  .header-text {
     font-size: 1rem;
     font-weight: bold;
     color: #f3f4f6;
-}
+  }
 
-.toggle-button {
+  .toggle-button {
     background: none;
     border: none;
     cursor: pointer;
@@ -60,13 +60,13 @@ const toggle = () => {
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s ease;
-}
+  }
 
-.toggle-button:hover {
+  .toggle-button:hover {
     background-color: rgba(59, 130, 246, 0.1);
-}
+  }
 
-.toggle-icon {
+  .toggle-icon {
     color: #3b82f6;
     font-size: 1rem;
     font-weight: bold;
@@ -75,21 +75,21 @@ const toggle = () => {
     display: flex;
     align-items: center;
     justify-content: center;
-}
+  }
 
-.content {
+  .content {
     animation: slideDown 0.2s ease-out;
-}
+  }
 
-@keyframes slideDown {
+  @keyframes slideDown {
     from {
-        opacity: 0;
-        transform: translateY(-10px);
+      opacity: 0;
+      transform: translateY(-10px);
     }
 
     to {
-        opacity: 1;
-        transform: translateY(0);
+      opacity: 1;
+      transform: translateY(0);
     }
-}
+  }
 </style>

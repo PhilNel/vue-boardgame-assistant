@@ -1,54 +1,62 @@
 <template>
-    <div class="select-wrapper">
-        <select :id="id" :value="modelValue" @input="handleChange" class="select-input" :disabled="disabled">
-            <option v-if="placeholder" value="" :disabled="!allowEmpty">
-                {{ placeholder }}
-            </option>
-            <slot />
-        </select>
+  <div class="select-wrapper">
+    <select
+      :id="id"
+      :value="modelValue"
+      class="select-input"
+      :disabled="disabled"
+      @input="handleChange"
+    >
+      <option v-if="placeholder" value="" :disabled="!allowEmpty">
+        {{ placeholder }}
+      </option>
+      <slot />
+    </select>
 
-        <div class="select-arrow">
-            <ChevronDownIcon />
-        </div>
+    <div class="select-arrow">
+      <ChevronDownIcon />
     </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import ChevronDownIcon from '@/components/ui/icons/ChevronDownIcon.vue'
+  import ChevronDownIcon from "@/components/ui/icons/ChevronDownIcon.vue";
 
-interface Props {
-    id?: string
-    modelValue?: string | number | ''
-    placeholder?: string
-    allowEmpty?: boolean
-    disabled?: boolean
-}
+  interface Props {
+    id?: string;
+    modelValue?: string | number | "";
+    placeholder?: string;
+    allowEmpty?: boolean;
+    disabled?: boolean;
+  }
 
-interface Emits {
-    (e: 'update:modelValue', value: string): void
-}
+  interface Emits {
+    (e: "update:modelValue", value: string): void;
+  }
 
-withDefaults(defineProps<Props>(), {
-    modelValue: '',
+  withDefaults(defineProps<Props>(), {
+    id: undefined,
+    placeholder: undefined,
+    modelValue: "",
     allowEmpty: true,
-    disabled: false
-})
+    disabled: false,
+  });
 
-const emit = defineEmits<Emits>()
+  const emit = defineEmits<Emits>();
 
-const handleChange = (event: Event) => {
-    const target = event.target as HTMLSelectElement
-    emit('update:modelValue', target.value)
-}
+  const handleChange = (event: Event) => {
+    const target = event.target as HTMLSelectElement;
+    emit("update:modelValue", target.value);
+  };
 </script>
 
 <style scoped>
-.select-wrapper {
+  .select-wrapper {
     position: relative;
     width: 100%;
-}
+  }
 
-.select-input {
+  .select-input {
     width: 100%;
     padding: 0.75rem 2.5rem 0.75rem 0.75rem;
     border: 1px solid #4b5563;
@@ -58,14 +66,14 @@ const handleChange = (event: Event) => {
     font-size: 0.875rem;
     cursor: pointer;
     appearance: none;
-}
+  }
 
-.select-input:focus {
+  .select-input:focus {
     outline: none;
     border-color: #3b82f6;
-}
+  }
 
-.select-arrow {
+  .select-arrow {
     position: absolute;
     top: 0;
     right: 0;
@@ -75,5 +83,5 @@ const handleChange = (event: Event) => {
     padding-right: 0.75rem;
     pointer-events: none;
     color: #9ca3af;
-}
+  }
 </style>
